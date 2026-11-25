@@ -1,5 +1,6 @@
 # cad-deliver-mcp
 
+[![PyPI](https://img.shields.io/pypi/v/cad-deliver-mcp?logo=pypi)](https://pypi.org/project/cad-deliver-mcp/)
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
 

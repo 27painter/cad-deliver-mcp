@@ -12,14 +12,19 @@ license-files = ["LICENSE"]
 requires-python = ">=3.11"
 authors = [{ name = "27painter" }]
 keywords = ["mcp", "cad", "dxf", "step", "pdf", "delivery", "verification", "gb"]
+# Every entry here must appear in https://pypi.org/pypi?%3Aaction=list_classifiers.
+# PyPI validates them and rejects the whole upload with a 400 — twine check does not,
+# so a bad classifier only surfaces at upload time. There is no CAD topic classifier.
 classifiers = [
     "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
     "Intended Audience :: Manufacturing",
+    "Environment :: Console",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Operating System :: Microsoft :: Windows",
-    "Topic :: Scientific/Engineering :: CAD",
+    "Topic :: Scientific/Engineering",
 ]
 
 # The two readers a delivery check almost always needs. They are default
