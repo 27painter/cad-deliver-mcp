@@ -40,7 +40,9 @@ dependencies = [
 [project.optional-dependencies]
 # The MCP server is the optional part: a CLI user never imports it.
 mcp = ["mcp>=1.20"]
-dev = ["mcp>=1.20"]
+# The suites also run as plain scripts (`python tests/test_rules.py`), so pytest is
+# a convenience for collection, not a requirement.
+dev = ["mcp>=1.20", "pytest>=8"]
 
 [project.scripts]
 cad-deliver = "cad_deliver.cli:main"
