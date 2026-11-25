@@ -1,0 +1,11 @@
+include LICENSE
+include README.md
+include README.zh.md
+include pyproject.toml
+
+# The golden baseline is deliberately absent; the test explains that itself.
+recursive-include tests *.py
+
+# Keep the benchmark scaffolding visible in the sdist so the task set can be
+# rebuilt from a release, even before the fixtures themselves are published.
+recursive-include benchmarks *.md *.gitkeep

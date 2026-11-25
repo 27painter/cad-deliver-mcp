@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# Editable install artefacts
+*.pth
+src/*.egg-link
+
+# Test and benchmark output
+delivery.json
+benchmarks/results/*.csv
+benchmarks/fixtures/defective/
+!benchmarks/results/.gitkeep
+
+# Backups created by hand
+*.bak-*
+
+# OS
+Thumbs.db
+.DS_Store
