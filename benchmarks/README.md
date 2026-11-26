@@ -7,81 +7,95 @@ whether the checks are worth running.
 ## Quick start
 
 ```bash
-python benchmarks/generate_fixtures.py    # 15 compliant drawings
+python scripts/gen_acad_fixtures.py       # 15 AutoCAD exports (A4/A3/A2)
+python benchmarks/generate_fixtures.py    # 15 generated compliant drawings
 python benchmarks/mutate.py               # 20 defect-injected copies
-python benchmarks/run_eval.py             # four arms, three CSV tables
+python benchmarks/run_eval.py             # five arms, four CSV tables
 ```
 
-`validate_real.py` is separate: it checks the real exports one at a time as you
-drop them in, so a failing drawing is explained while you still remember what you
-exported.
+`validate_real.py` is separate and narrower: it runs `GB_T_TIER1` over
+`fixtures/real/` only and exits non-zero unless every export passes. `run_eval.py`
+is the broad one — it also reports the SolidWorks contrast, which is *expected* to
+be UNKNOWN rather than PASS.
 
 ## Layout
 
 ```
-fixtures/real/      15 SolidWorks/NX exports with a GB title block, anonymised
-                    (yours to add; the directory ships empty)
+fixtures/real/      15 AutoCAD 2025 exports, Document.Export to DXF;
+                    A4 x5, A3 x7, A2 x3; scales 1:1 / 1:2 / 2:1;
+                    fifteen distinct part geometries
+fixtures/real_sw/   15 SolidWorks 2025 exports of the same parts - the
+                    cross-ecosystem contrast group, deliberately NOT in the
+                    compliant set
 fixtures/gen/       15 compliant drawings generated with ezdxf
-fixtures/mutated/   20 mutated copies, 4 per defect class
-results/            recall_by_defect.csv, false_positives.csv, latency.csv
+fixtures/mutated/   20 mutated copies, one defect each, 10 from real + 10 from gen
+results/            recall_by_defect.csv, false_positives.csv, latency.csv,
+                    cross_ecosystem.csv
 tasks.json          the manifest every number above refers to
-mutations.json      per-sample expected code and layer
+mutations.json      per-sample expected code, layer and profile
 ```
 
 `fixtures/gen/` and `fixtures/mutated/` are git-ignored: they are rebuilt
-byte-for-byte by the scripts. `fixtures/real/`, `tasks.json`, `mutations.json`
-and the result tables are committed — they cannot be regenerated and they are the
-evidence.
+byte-for-byte by the scripts. `fixtures/real/`, `fixtures/real_sw/`, `tasks.json`,
+`mutations.json` and the result tables are committed — they cannot be regenerated
+identically, and they are the evidence.
 
-## Dynamic scale
+**No exported DXF is post-processed.** What lands in `fixtures/real*/` is what the
+CAD application wrote. That constraint is what makes the cross-ecosystem numbers
+below mean anything.
 
-The evaluation adapts to how many real exports exist:
+## Scale: 50 tasks
 
-| `fixtures/real/` | tasks | compliant | mutated |
-|---|---|---|---|
-| empty | 35 | 15 generated | 20 |
-| 15 files | 50 | 30 (15 generated + 15 real) | 20 |
+The set is complete and fixed at 50:
 
-There is no other switch. Drop the exports in, re-run `run_eval.py`, and the
-tables extend. Until they exist, any recall figure describes generated data only
-— which is why `false_positives.csv` reports `n=15` today and `n=30` once the real
-set lands (and why its Clopper-Pearson bound is 18.1% rather than 9.5%).
+| source | n | role |
+|---|---:|---|
+| `fixtures/real` (AutoCAD) | 15 | compliant |
+| `fixtures/gen` | 15 | compliant |
+| `fixtures/mutated` | 20 | defective, 10 from real + 10 from gen |
+| `fixtures/real_sw` (SolidWorks) | 15 | cross-ecosystem contrast, **not** in the compliant set |
+
+`run_eval.py` still adapts if `fixtures/real/` is empty (it falls back to 35 and
+says so), but that path exists only for a fresh checkout before the exporter has
+run. Every number in the tables below is the 50-task run.
 
 ## Defect classes
 
-Each class targets one code, so recall can be attributed:
+Six classes, 20 injected defects, each with an expected machine code:
 
-| class | n | injection | expected code | layer |
-|---|---:|---|---|---|
-| degenerate bbox | 4 | every entity kept, all coordinates collapsed to the origin | `E_BBOX_DEGENERATE` | geometry |
-| open profile | 4 | one side of the outline removed | `E_PROFILE_OPEN` | standard |
-| non-standard sheet | 4 | paper size → 400×280 mm | `E_SHEET_SIZE` | standard |
-| missing title block | 4 | INSERT deleted, or a required ATTRIB blanked | `E_TITLE_BLOCK` / `E_TITLE_BLOCK_BLANK` | standard |
-| wrong layer | 4 | DIMENSION onto the outline layer, or outline onto layer 0 | `E_DIM_ON_WRONG_LAYER` / `E_CONTOUR_ON_ZERO` | standard |
+| class | injected defect | expected code |
+|---|---|---|
+| degenerate bbox | every coordinate collapsed to the origin | `E_BBOX_DEGENERATE` |
+| dimension on wrong layer | one `DIMENSION` moved onto the outline layer | `E_DIM_ON_WRONG_LAYER` |
+| missing title block | the title block `INSERT` deleted | `E_TITLE_BLOCK` |
+| non-standard sheet | paper size set to 400x280 mm | `E_SHEET_SIZE` |
+| open profile | one vertex dropped from a closed polyline | `E_PROFILE_OPEN` |
+| outline on layer 0 | outline entities moved to layer `0` | `E_CONTOUR_ON_ZERO` |
 
-The title-block class deliberately **keeps the `比例 1:2` text on the sheet**. A
-keyword-matching checker still sees a title block; the attribute-level rule does
-not. That contrast is the reason this benchmark exists, and the `LEGACY` column
-below is what makes it visible.
+Each mutation is verified on write: the file must fail the gate, and the gate must
+name the expected code. `mutate.py` reports `injected / exact / intercepted` and
+refuses to write a manifest when they disagree.
 
 ## Comparison arms
 
-| arm | decision rule | role |
-|---|---|---|
-| G1 | no gate; always PASS | lower bound |
-| G2 | file exists and is non-empty | weak baseline |
-| G2.5 | `ezdxf` opens it, model space non-empty, `$INSUNITS != 0` | the competitor |
-| G3 | this package, `GB_T_TIER1` | the system under test |
-| LEGACY | this package, `LEGACY_COMPAT` (geometry checks only) | the previous behaviour |
+Cumulative, so the difference between adjacent arms is one layer of checking:
 
-`LEGACY` is not an arm in the paper's sense — it is the same code with the rule
-layer switched off. It is measured because it is the honest answer to "was the
-old checker really that bad?", and because it isolates what the rule layer adds.
+| arm | what it does |
+|---|---|
+| G1 | header only — is this a readable DXF |
+| G2 | + geometry — extents, entity counts |
+| G2.5 | + outline closure, the pre-existing `dsh-sw-cad` check set |
+| G3 | + the full rule set (`GB_T_TIER1` plus `PROFILE_CLOSURE` routing) |
+| LEGACY_COMPAT | the published `delivery.json` contract, no GB rule at all |
 
-## First run: 35 tasks
+G2.5 is the arm that matters. Comparing only against G1 and G2 invites the
+objection that the baseline was never credible; G2.5 is what a competent engineer
+would write in an afternoon without a rule layer.
+
+## The 50-task run
 
 ```
-tasks: 35  (compliant 15 = gen 15 + real 0, mutated 20)
+tasks: 50  (compliant 30 = gen 15 + real 15, mutated 20)
 
 | defect class              | layer    |  n | G1   | G2   | G2.5 | G3    | LEGACY |
 |---------------------------|----------|---:|------|------|------|-------|--------|
@@ -94,46 +108,88 @@ tasks: 35  (compliant 15 = gen 15 + real 0, mutated 20)
 | ALL (geometry)            | geometry |  4 | 0/4  | 0/4  | 0/4  | 4/4   | 0/4    |
 | ALL (standard)            | standard | 16 | 0/16 | 0/16 | 0/16 | 16/16 | 0/16   |
 | ALL                       | both     | 20 | 0/20 | 0/20 | 0/20 | 20/20 | 0/20   |
+
+| arm           |  n | FP | rate | CP 95% upper |
+|---------------|---:|---:|-----:|-------------:|
+| G1            | 30 |  0 | 0.0% |         9.5% |
+| G2            | 30 |  0 | 0.0% |         9.5% |
+| G2.5          | 30 |  0 | 0.0% |         9.5% |
+| G3            | 30 |  0 | 0.0% |         9.5% |
+| LEGACY_COMPAT | 30 |  0 | 0.0% |         9.5% |
+
+| arm           |  n | p50 (ms) | p95 (ms) |
+|---------------|---:|---------:|---------:|
+| G1            | 50 |    0.002 |    0.002 |
+| G2            | 50 |    0.197 |    0.370 |
+| G2.5          | 50 |   10.185 |   47.252 |
+| G3            | 50 |   12.653 |   51.976 |
+| LEGACY_COMPAT | 50 |   11.775 |   34.342 |
 ```
 
 Reading it:
 
-* **G1, G2 and G2.5 intercept nothing.** Static syntax checks cannot see content:
-  a drawing with its sheet at 400×280 mm opens perfectly.
-* **LEGACY intercepts 0/20.** The pre-existing checker catches nothing in any
-  class. Note that this is conditional on how the bbox defect is injected: an
-  earlier mutation deleted the model space, which tripped `drawing.entities` and
-  credited the old checker with 4/20. The current mutation keeps all eight
-  entities and only collapses their coordinates to the origin, so the entity
-  count still passes and the interception is attributable to `geo.bbox_degenerate`
-  alone. That is the difference between "an empty drawing" and "degenerate
-  geometry", and it is what makes the row honest.
+* **G1, G2 and G2.5 intercept nothing at the standard level.** Static syntax checks
+  cannot see content: a drawing with its sheet at 400x280 mm opens perfectly.
+* **LEGACY intercepts 0/20.** This is conditional on how the bbox defect is
+  injected. An earlier mutation deleted the model space, which tripped
+  `drawing.entities` and credited the old checker with 4/20. The current mutation
+  keeps every entity and only collapses their coordinates, so the entity count still
+  passes and the interception is attributable to `geo.bbox_degenerate` alone. That
+  is the difference between "an empty drawing" and "degenerate geometry", and it is
+  what makes the row honest.
 * **G3 intercepts 20/20**, and `G3_exact` in the CSV is also 20/20: it names the
   injected code each time, not just "something is wrong".
+* **The rule layer costs about 2.5 ms at the median over G2.5.** Parsing dominates;
+  six rules are nearly free on top of it. The p95 gap is wider because the A2 sheets
+  parse slower and carry more entities to classify.
 
-False positives and latency:
+### Cross-ecosystem contrast
+
+`fixtures/real_sw/` holds the same fifteen parts exported by SolidWorks. Same gate,
+same rules:
 
 ```
-| arm           | n  | FP | rate  | CP 95% upper |
-|---------------|----|----|-------|--------------|
-| G1            | 15 |  0 | 0.0%  | 18.1%        |
-| G2            | 15 |  0 | 0.0%  | 18.1%        |
-| G2.5          | 15 |  0 | 0.0%  | 18.1%        |
-| G3            | 15 |  0 | 0.0%  | 18.1%        |
-| LEGACY_COMPAT | 15 |  0 | 0.0%  | 18.1%        |
-
-| arm           | n  | p50 (ms) | p95 (ms) |
-|---------------|----|---------:|---------:|
-| G1            | 35 |    0.002 |    0.002 |
-| G2            | 35 |    0.196 |    0.249 |
-| G2.5          | 35 |   10.154 |   44.595 |
-| G3            | 35 |   12.453 |   49.303 |
-| LEGACY_COMPAT | 35 |   11.765 |   21.911 |
+| source            | CAD system | n  | PASS | FAIL | UNKNOWN |
+|-------------------|------------|----|------|------|---------|
+| fixtures/real     | AutoCAD    | 15 |   15 |    0 |       0 |
+| fixtures/real_sw  | SolidWorks | 15 |    0 |    2 |      13 |
 ```
 
-The rule layer costs about **2.3 ms at the median** over G2.5 — parsing dominates,
-and five rules are nearly free on top of it. The p95 gap is wider because the
-large sheets (A0) parse slower and have more entities to classify.
+The two FAILs are real defects, kept on purpose: `part-006` exported no dimensions
+at all, and `part-013` prints one dimension at 1.33x its measured length — a single
+reading cannot establish a scale factor, so it is reported rather than excused.
+
+The thirteen UNKNOWNs are the finding, not a defect in either side. Those DXFs carry
+no sheet format, no layer structure and no sheet size, so `gb.title_block`,
+`gb.layer_taxonomy` and `gb.sheet_size` abstain — and `CRITICAL_RULES` turns an
+abstention on any of them into `UNKNOWN` instead of `PASS`. Five compliance
+dimensions, two checked, is not a pass.
+
+`gb.dim_text` does recognise a scaled sheet: when every overridden dimension reads
+the same multiple of the measured length (7x on eight of them), the view is scaled
+and the text states model values. A hand-edited text is a one-off wrong number.
+
+## Result tables and how to reproduce them
+
+| file | what it answers | built by |
+|---|---|---|
+| `results/recall_by_defect.csv` | per defect class, which arm caught it and whether the code matched | `run_eval.py` |
+| `results/false_positives.csv` | per arm, false positives on the 30 compliant samples with the CP 95% upper bound | `run_eval.py` |
+| `results/latency.csv` | per arm p50/p95 in ms over all 50 tasks | `run_eval.py` |
+| `results/cross_ecosystem.csv` | AutoCAD vs SolidWorks under the same gate | `run_eval.py` |
+| `tasks.json` | the manifest: every sample, its kind, group, profile, expected code | `run_eval.py` |
+| `mutations.json` | per mutation: expected code, expected layer, profile | `mutate.py` |
+
+One chain rebuilds everything:
+
+```bash
+python scripts/gen_acad_fixtures.py       # 15 AutoCAD exports via COM, ~4 min
+python scripts/batch_export_sw.py --input tmp_sw_parts \
+       --output benchmarks/fixtures/real_sw   # SolidWorks contrast, ~15 min
+python benchmarks/mutate.py               # 20 mutations, 10 real + 10 gen
+python benchmarks/run_eval.py             # the four tables + tasks.json
+python benchmarks/validate_real.py        # compliant set on its own
+```
 
 ## Reporting rules
 
@@ -143,31 +199,6 @@ large sheets (A0) parse slower and have more entities to classify.
 * Never report a bare "0%" for false positives. Report `k/n` with the exact
   Clopper-Pearson 95% one-sided upper bound, computed in `run_eval.py` from
   `math.comb` — no scipy dependency, so the number is reproducible anywhere.
-
-## Current gaps
-
-`fixtures/real/` holds one exported sample (`part_001.dxf`) while the remaining
-fourteen are blocked on the issues below. Until they land, every recall figure
-describes generated data only, and the false-positive bound stays at 18.1%
-(n=15) instead of 9.5% (n=30).
-
-The export path itself works — `scripts/batch_export_sw.py` drives SolidWorks
-2025 through COM and produces a real DXF (mm units, first-angle three-view,
-model dimensions, geometry in model space). What it cannot fix from code:
-
-**Configuration SolidWorks exposes only in its UI.** The DXF writer has no COM
-switch for layer mapping or for exporting the sheet format; everything lands on
-layer 0 and the paper space stays empty, which trips `E_CONTOUR_ON_ZERO`,
-`E_DIM_ON_WRONG_LAYER` and `E_TITLE_BLOCK`. Tools > Options > Export > DXF/DWG
-covers both, plus a template whose title block is an attributed block.
-
-**A rule whose precondition the artefact does not meet.** `gb.closed_profile`
-assumes one drawing is one closed contour. A three-view drawing is made of open
-segments — sixteen dangling ends is what it *is*, not a defect. That rule
-therefore fires on 100% of real engineering drawings, structurally, and no amount
-of tuning changes it. The same argument applies to `gb.sheet_size`, which also
-judges the empty `Model` layout whose paper size is SolidWorks' Letter default.
-
-Both are tracked as design questions rather than bugs: a rule with an unmet
-precondition should abstain (`UNKNOWN`) instead of failing, which is the same
-principle that produced the three verdicts in the first place.
+* An `UNKNOWN` on a *contrast* sample is not a false positive and does not enter
+  that denominator: the artefact lacks the information the rule needs, so the rule
+  correctly declines to answer.

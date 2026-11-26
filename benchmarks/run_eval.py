@@ -9,16 +9,22 @@ G2.5 is the arm that matters. Comparing only against G1 and G2 invites the
 objection that the baseline was never credible; G2.5 is what a competent
 engineer would write in an afternoon without a rule layer.
 
-Scale is dynamic. With `fixtures/real/` empty the set is 35 tasks (15 generated
-+ 20 mutated). Drop 15 real exports in and the same command evaluates 50 (30
-compliant + 20 mutated) with no other change.
+The set is 50 tasks: 30 compliant (15 generated + 15 AutoCAD exports) and 20 mutated
+(10 from each group). `fixtures/real_sw/` is reported separately as a cross-ecosystem
+contrast and never enters the compliant count - its drawings carry no sheet format, no
+layer structure and no sheet size, so three rules abstain and the verdict is UNKNOWN
+rather than PASS.
+
+If `fixtures/real/` is empty the run evaluates a reduced set and says so; that
+path exists only for a fresh checkout before the exporter has run.
 
 Outputs, all written to `results/`:
 
-    recall_by_defect.csv    per class, per layer, and overall, for all four arms
+    recall_by_defect.csv    per class, per layer, and overall, for all five arms
     false_positives.csv     false positives on compliant samples, with an exact
                             Clopper-Pearson 95% one-sided upper bound
     latency.csv             per-call p50 and p95 in milliseconds
+    cross_ecosystem.csv     AutoCAD vs SolidWorks under the same gate
     tasks.json              the manifest every number above refers to
 
 The upper bound is computed here rather than by scipy: `math.comb` and a
@@ -286,8 +292,8 @@ def main() -> int:
           f"(compliant {scale['compliant']} = gen {scale['generated']} + real {scale['real']}, "
           f"mutated {scale['mutated']})")
     if not scale["complete_50"]:
-        print("note : fixtures/real/ holds fewer than 15 exports, so this is the 35-task run")
-        print("       drop real DXFs in and re-run for the full 50-task set")
+        print("note : fixtures/real/ holds fewer than 15 exports, so this is the reduced run")
+        print("       run scripts/gen_acad_fixtures.py, then re-run for the full 50-task set")
 
     # verdicts[arm][task name], plus latency and the legacy comparison
     verdicts: dict[str, dict[str, str]] = {arm: {} for arm in ARMS}

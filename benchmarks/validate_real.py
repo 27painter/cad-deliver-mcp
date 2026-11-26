@@ -27,8 +27,8 @@ def main() -> int:
     files = sorted(REAL_DIR.glob("*.dxf")) if REAL_DIR.is_dir() else []
     if not files:
         print(f"No real exports yet: {REAL_DIR}")
-        print("Drop the .dxf files there and run this again. The benchmark falls back to")
-        print("the 35-task set (15 generated + 20 mutated) until then.")
+        print("Run scripts/gen_acad_fixtures.py to build them, then run this again.")
+        print("Until they exist the benchmark evaluates the generated samples only.")
         return 0
 
     passed = 0
