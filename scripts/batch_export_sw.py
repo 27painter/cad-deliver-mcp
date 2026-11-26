@@ -111,6 +111,7 @@ def export_one(sw, part: Path, template: str, target: Path, a3: bool) -> dict:
     except Exception as exc:  # noqa: BLE001 - one part must not stop the batch
         record["note"] += f"{type(exc).__name__}: {exc}"
     finally:
+        # True = discard unsaved changes, so no save prompt can block the next part.
         try:
             sw.CloseAllDocuments(True)
         except Exception:  # noqa: BLE001
@@ -142,7 +143,9 @@ def main() -> int:
     output = Path(args.output).resolve()
     output.mkdir(parents=True, exist_ok=True)
 
-    parts = sorted(list(source.glob("*.sldprt")) + list(source.glob("*.SLDPRT")))
+    # One glob, not two: on Windows the filesystem is case-insensitive, so adding
+    # *.sldprt and *.SLDPRT returned every file twice.
+    parts = sorted(p for p in source.iterdir() if p.suffix.lower() == ".sldprt")
     if args.limit:
         parts = parts[: args.limit]
     if not parts:

@@ -247,36 +247,40 @@ MUTATIONS = [
 
 
 def source_pool() -> list[tuple[Path, str]]:
-    """Interleave real and generated sources, real first.
+    """Ten real exports and ten generated drawings, interleaved.
 
-    With 15 real exports and 15 generated drawings this yields real, gen, real,
-    gen... so the mutated set is half real. With `real/` empty it is all
-    generated, and the run says so rather than pretending otherwise.
+    The previous version tried to express this with a compound condition whose
+    precedence put every real file in the pool twice and ignored the ten-item cap.
+    Stating the two groups separately and zipping them is shorter and cannot drift.
+
+    Real sources come from `fixtures/real/` - the AutoCAD exports that pass the
+    gate. The SolidWorks exports in `fixtures/real_sw/` are a separate contrast
+    group and are deliberately not used as mutation sources: their geometry is
+    fine but they carry no layer structure, so a mutation of this kind would not
+    be identifiable in them.
     """
-    real = sorted(REAL_DIR.glob("*.dxf")) if REAL_DIR.is_dir() else []
-    gen = sorted(GEN_DIR.glob("*.dxf")) if GEN_DIR.is_dir() else []
+    def dxf_files(directory: Path) -> list[Path]:
+        if not directory.is_dir():
+            return []
+        # AutoCAD writes .DXF; ezdxf and the generator write .dxf. Match case-blind.
+        return sorted(p for p in directory.iterdir() if p.suffix.lower() == ".dxf")
 
-    pool: list[tuple[Path, str]] = []
-    for index in range(max(len(real), len(gen))):
-        if index < len(real) and len(pool) < 10 or not gen:
-            pool.append((real[index], "real"))
-            continue
-        if index < len(real):
-            pool.append((real[index], "real"))
-        if index < len(gen):
-            pool.append((gen[index], "gen"))
+    real = dxf_files(REAL_DIR)
+    gen = dxf_files(GEN_DIR)
 
-    # Alternate so a run of four mutations of one class does not land on one group.
+    want_real, want_gen = 10, 10
+    real_pick = [(path, "real") for path in real[:want_real]]
+    gen_pick = [(path, "gen") for path in gen[:want_gen]]
+
     ordered: list[tuple[Path, str]] = []
-    gen_items = [item for item in pool if item[1] == "gen"]
-    real_items = [item for item in pool if item[1] == "real"]
-    while real_items or gen_items:
-        if real_items:
-            ordered.append(real_items.pop(0))
-        if gen_items:
-            ordered.append(gen_items.pop(0))
+    index = 0
+    while index < len(real_pick) or index < len(gen_pick):
+        if index < len(real_pick):
+            ordered.append(real_pick[index])
+        if index < len(gen_pick):
+            ordered.append(gen_pick[index])
+        index += 1
     return ordered
-
 
 def main() -> int:
     if not GEN_DIR.is_dir() or not list(GEN_DIR.glob("*.dxf")):

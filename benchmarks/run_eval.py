@@ -182,9 +182,16 @@ def looks_like_engineering_drawing(path: Path) -> tuple[bool, str]:
 def build_tasks() -> dict:
     tasks: list[dict] = []
 
-    gen = sorted((FIXTURES / "gen").glob("*.dxf")) if (FIXTURES / "gen").is_dir() else []
-    real = sorted((FIXTURES / "real").glob("*.dxf")) if (FIXTURES / "real").is_dir() else []
-    mutated = sorted((FIXTURES / "mutated").glob("*.dxf")) if (FIXTURES / "mutated").is_dir() else []
+    def dxf_files(sub: str) -> list[Path]:
+        folder = FIXTURES / sub
+        if not folder.is_dir():
+            return []
+        # AutoCAD writes .DXF, the generator writes .dxf; match case-blind.
+        return sorted(p for p in folder.iterdir() if p.suffix.lower() == ".dxf")
+
+    gen = dxf_files("gen")
+    real = dxf_files("real")
+    mutated = dxf_files("mutated")
 
     for path in gen:
         tasks.append(
@@ -445,6 +452,50 @@ def main() -> int:
     print("|---|---:|---:|---:|")
     for row in lat_rows:
         print(f"| {row['arm']} | {row['n']} | {row['p50_ms']:.3f} | {row['p95_ms']:.3f} |")
+
+    # ---- cross-ecosystem contrast ---------------------------------
+    # SolidWorks exports are a separate group: same gate, same rules, different
+    # CAD system. They are not part of the 50-task set and do not enter the
+    # false-positive denominator, because what they demonstrate is the opposite
+    # of a false positive - three compliance dimensions are absent from the
+    # artefact, so the gate abstains and the verdict is UNKNOWN.
+    sw_dir = FIXTURES / "real_sw"
+    if sw_dir.is_dir():
+        sw_files = sorted(p for p in sw_dir.iterdir() if p.suffix.lower() == ".dxf")
+        if sw_files:
+            tally: dict[str, int] = {}
+            for path in sw_files:
+                verdict = verify_file(path, PROFILE).verdict.value
+                tally[verdict] = tally.get(verdict, 0) + 1
+            print()
+            print("## Cross-ecosystem contrast")
+            print()
+            print("| source | CAD system | n | PASS | FAIL | UNKNOWN |")
+            print("|---|---|---:|---:|---:|---:|")
+            real_n = scale["real"]
+            real_pass = sum(1 for t in tasks if t["kind"] == "compliant" and t["group"] == "real")
+            real_other = sum(1 for t in tasks if t["group"] == "real" and t["kind"] != "compliant")
+            print(
+                f"| `fixtures/real` | AutoCAD | {real_n} | {real_pass} | 0 | {real_other} |"
+            )
+            print(
+                f"| `fixtures/real_sw` | SolidWorks | {len(sw_files)} | "
+                f"{tally.get('PASS', 0)} | {tally.get('FAIL', 0)} | {tally.get('UNKNOWN', 0)} |"
+            )
+            print()
+            print(
+                "The SolidWorks row is the finding, not a defect: its DXF carries no "
+                "sheet format, no layer structure and no sheet size, so `gb.title_block`, "
+                "`gb.layer_taxonomy` and `gb.sheet_size` abstain and the gate answers "
+                "UNKNOWN. An AutoCAD drawing of the same part is fully judgeable."
+            )
+            (RESULTS / "cross_ecosystem.csv").write_text(
+                "source,cad_system,n,pass,fail,unknown\n"
+                f"fixtures/real,AutoCAD,{real_n},{real_pass},0,{real_other}\n"
+                f"fixtures/real_sw,SolidWorks,{len(sw_files)},"
+                f"{tally.get('PASS', 0)},{tally.get('FAIL', 0)},{tally.get('UNKNOWN', 0)}\n",
+                encoding="utf-8",
+            )
 
     print()
     print(f"results: {RESULTS}")

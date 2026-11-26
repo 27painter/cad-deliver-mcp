@@ -79,8 +79,17 @@ class LayerTaxonomyRule(BaseStandardRule):
         ambiguous: list[str] = []
         by_role: dict[LayerRole, list[str]] = {}
 
+        # Only layers something is actually drawn on. Every DXF carries stray empty
+        # layers - a CAD application creates its whole standard set on a new document
+        # whether or not the draughtsman uses them - and judging those reports a
+        # naming defect about a layer nobody drew on. What the rule is about is how
+        # the drawing organises its geometry.
+        occupied = {name for name, counts in drawing.entity_layers.items() if counts}
+
         for layer in drawing.layers:
             name = layer.name
+            if name not in occupied:
+                continue
             if is_structural(name):
                 continue
             match = classify(name)

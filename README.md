@@ -126,14 +126,22 @@ Layering is enforced two ways, not one. The import check catches new dependencie
 
 ## Drafting Rules & Profiles
 
-### Four Rules in `GB_T_TIER1`
+### Rules and the Profiles That Enable Them
 
 | Rule ID | Standard | Blocks On |
 | :--- | :--- | :--- |
 | `gb.sheet_size` | GB/T 14689-2008 | Sheet dimensions outside A4–A0 (landscape or portrait, ±2 mm tolerance) |
 | `gb.layer_taxonomy` | GB/T 4457.2-2003 | Dimension off its semantic layer, outline left on layer `0`, or unclassified layer name |
-| `gb.closed_profile` | GB/T 4457.2-2003 | Contour ring leaving a dangling endpoint (`degree == 1` at `0.01 mm` tolerance) |
 | `gb.title_block` | GB/T 10609.1-2008 | Missing title-block block reference, or blank mandatory attributes (`图名` / `图号` / `比例`) |
+| `gb.dim_text` | GB/T 4458.4-2003 | Dimension text override disagreeing with the measured value (>0.2% and >0.01 mm) |
+| `geo.bbox_degenerate` | — | Model-space extent collapsed to a point or a line (<0.001 mm) |
+| `gb.closed_profile` | GB/T 4457.2-2003 | Contour ring leaving a dangling endpoint (`degree == 1` at `0.01 mm` tolerance) — **`PROFILE_CLOSURE` only** |
+
+`gb.closed_profile` is not in `GB_T_TIER1`. Closure is a property of a *single-view
+profile drawing*; a multi-view engineering drawing is made of open edge segments, so
+applying the rule there fires on 100% of real drawings, permanently. Enabling it is a
+statement that the artefact is a profile drawing, which is why it lives in its own
+profile rather than being tuned.
 
 * **Why attribute-level title-block checks matter:** Checking block existence alone proves nothing — an empty title block still exists. `gb.title_block` inspects `ATTRIB` values and blocks when required fields are blank, catching the exact failure mode LLM agents produce.
 * **Why endpoint-degree closure matters:** Real SolidWorks and NX exports frequently write visually closed rings with the DXF `closed` flag set to `False` and the final vertex coinciding with the first. Relying on the flag triggers false positives on valid industrial exports — *a gate that cries wolf gets switched off*. Endpoints are snapped at `0.01 mm` tolerance, flagging only true dangling vertices (`degree == 1`). Note that snapping must be a neighbourhood search, not `round(x / tolerance)`: rounding to a grid only joins points within half a cell, so a 0.008 mm round-trip artefact would still read as a break.
@@ -144,10 +152,12 @@ Every failure carries a concrete fix. A finding that only says "something is wro
 
 ```python
 PROFILES = {
-    "LEGACY_COMPAT":  [],                 # Byte-compatible with dsh-sw-cad 2.2.0
-    "GEOMETRY_ONLY":  [],                 # Generic geometric checks only, no drafting standard
-    "GB_T_TIER1":     ["gb.sheet_size", "gb.layer_taxonomy", "gb.closed_profile", "gb.title_block"],
-    "ISO_216_TIER1":  ["gb.sheet_size"],  # Same rule reused under ISO 216
+    "LEGACY_COMPAT":   [],                # Byte-compatible with dsh-sw-cad 2.2.0
+    "GEOMETRY_ONLY":   [],                # Generic geometric checks only, no drafting standard
+    "GB_T_TIER1":      ["geo.bbox_degenerate", "gb.sheet_size", "gb.layer_taxonomy",
+                        "gb.dim_text", "gb.title_block"],
+    "PROFILE_CLOSURE": ["gb.closed_profile"],   # single-view profile drawings only
+    "ISO_216_TIER1":   ["gb.sheet_size"],  # Same rule reused under ISO 216
 }
 ```
 
@@ -162,6 +172,88 @@ for result in run_profile(drawing, "GB_T_TIER1"):
 
 ---
 
+## Benchmark: 50 Tasks, and an Ecosystem Contrast
+
+`benchmarks/` holds a 50-task set built from three sources, run through five arms.
+
+### What is in it
+
+| Source | n | How it was made |
+|---|---|---|
+| `fixtures/gen` | 15 | Generated at A0–A4 in both orientations, all compliant |
+| `fixtures/real` | 15 | **AutoCAD 2025**, native `Document.Export` to DXF, A4×5 / A3×7 / A2×3, scales 1:1 / 1:2 / 2:1, fifteen distinct part geometries |
+| `fixtures/mutated` | 20 | 10 from real + 10 from generated, one injected defect each |
+
+The five arms are cumulative: **G1** header only, **G2** header + geometry, **G2.5**
++ outline closure (the old `dsh-sw-cad` check set), **G3** the full rule set, and
+**LEGACY_COMPAT** as the published-contract baseline.
+
+### Results
+
+```
+| arm  | n  | FP | rate | CP 95% upper |
+|------|---:|---:|-----:|-------------:|
+| G1   | 30 |  0 | 0.0% |         9.5% |
+| G2   | 30 |  0 | 0.0% |         9.5% |
+| G2.5 | 30 |  0 | 0.0% |         9.5% |
+| G3   | 30 |  0 | 0.0% |         9.5% |
+
+Recall, G3: 20/20 by defect class — degenerate bbox 4/4, dimension on wrong layer 2/2,
+missing title block 4/4, non-standard sheet 4/4, open profile 4/4, outline on layer 0 2/2.
+G1, G2 and G2.5 catch none of the standard-level defects (0/16); LEGACY_COMPAT 0/20.
+
+Latency per call, p50/p95 ms: G3 12.69 / 54.18, G2.5 10.19 / 47.25.
+```
+
+The false-positive bound is a Clopper-Pearson one-sided 95% upper limit computed in
+pure Python — 0/30 gives 9.5%. Quoting "0% false positives" would be a claim the
+sample cannot support.
+
+### The ecosystem contrast is the interesting part
+
+`fixtures/real_sw` holds the same fifteen parts exported by **SolidWorks 2025**
+through its own API (`scripts/batch_export_sw.py`). Same gate, same rules:
+
+```
+| source            | CAD system | n  | PASS | FAIL | UNKNOWN |
+|-------------------|------------|----|------|------|---------|
+| `fixtures/real`   | AutoCAD    | 15 |   15 |    0 |       0 |
+| `fixtures/real_sw`| SolidWorks | 15 |    0 |    0 |      15 |
+```
+
+**A SolidWorks DXF cannot be judged by a drafting-standard gate, and that is not a
+defect in either side.** Its export carries no sheet format, writes every entity on
+layer `0`, and gives the model space a plot-setting paper size. Three of the five
+compliance dimensions therefore have nothing to look at:
+
+| dimension | why there is nothing | verified how |
+|---|---|---|
+| sheet format / title block | `SaveAs`→DXF writes model geometry only | 129 registry export values, 818 preference toggles: no switch exists. `ISheet.SetTemplateName` and `InsertTitleBlockTable` both return `None`. `IPartDoc.ExportToDWG2` is the sheet-metal flat-pattern exporter |
+| layer taxonomy | SolidWorks distinguishes line types by colour, not layer | `CreateLayer2` returns `True`; `Annotation.Layer` + `LayerOverride` assign without raising; the export still writes `0`. The mapping file's `[Entities]` section is ignored on the `SaveAs` path |
+| sheet size | model space has no sheet | `NewDocument(template, 8, 0, 0)` builds an A3 sheet; the DXF still reports Letter for the `Model` layout |
+
+A rule whose precondition does not hold abstains, and `CRITICAL_RULES` means an
+abstention on title block, sheet size, layer taxonomy or closure turns the verdict
+into `UNKNOWN` rather than `PASS`. **Five dimensions, two checked, is not a pass.**
+
+This is the finding, not a shortcoming: the same rules that fully judge an AutoCAD
+drawing have nothing to read in a SolidWorks export. That is why the benchmark's
+compliant set is the AutoCAD one — and why the number above says `UNKNOWN` fifteen
+times instead of quietly reporting `PASS`.
+
+Reproduce with:
+
+```bash
+python scripts/gen_acad_fixtures.py      # 15 AutoCAD drawings via COM + Document.Export
+python scripts/batch_export_sw.py --input tmp_sw_parts --output benchmarks/fixtures/real_sw
+python benchmarks/mutate.py              # 10 real + 10 generated, 20 defects
+python benchmarks/run_eval.py            # three CSVs, tasks.json, cross_ecosystem.csv
+```
+
+No exported DXF is post-processed by this project. What lands in `fixtures/` is what
+the CAD application wrote.
+
+---
 ## CLI Usage & Exit Codes
 
 ```bash

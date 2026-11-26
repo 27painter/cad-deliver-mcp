@@ -2,26 +2,51 @@
   {
     "name": "mut_01_bbox_point",
     "path": "fixtures/mutated/mut_01_bbox_point.dxf",
-    "source": "part_001",
+    "source": "PART-001",
     "source_group": "real",
     "expected_code": "E_BBOX_DEGENERATE",
     "expected_layer": "geometry",
     "profile": "GB_T_TIER1",
     "observed_codes": [
-      "E_BBOX_DEGENERATE",
-      "E_SHEET_SIZE",
-      "W_NO_CONTOUR_LAYER",
-      "E_DIM_ON_WRONG_LAYER",
-      "E_CONTOUR_ON_ZERO",
-      "E_TITLE_BLOCK"
+      "E_BBOX_DEGENERATE"
     ],
     "intercepted": true,
     "exact_match": true,
-    "size": 31645
+    "size": 79352
   },
   {
     "name": "mut_02_bbox_point",
     "path": "fixtures/mutated/mut_02_bbox_point.dxf",
+    "source": "gen_01_a4_portrait",
+    "source_group": "gen",
+    "expected_code": "E_BBOX_DEGENERATE",
+    "expected_layer": "geometry",
+    "profile": "GB_T_TIER1",
+    "observed_codes": [
+      "E_BBOX_DEGENERATE"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 77618
+  },
+  {
+    "name": "mut_03_bbox_point",
+    "path": "fixtures/mutated/mut_03_bbox_point.dxf",
+    "source": "PART-002",
+    "source_group": "real",
+    "expected_code": "E_BBOX_DEGENERATE",
+    "expected_layer": "geometry",
+    "profile": "GB_T_TIER1",
+    "observed_codes": [
+      "E_BBOX_DEGENERATE"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 79349
+  },
+  {
+    "name": "mut_04_bbox_point",
+    "path": "fixtures/mutated/mut_04_bbox_point.dxf",
     "source": "gen_02_a4_landscape",
     "source_group": "gen",
     "expected_code": "E_BBOX_DEGENERATE",
@@ -32,43 +57,13 @@
     ],
     "intercepted": true,
     "exact_match": true,
-    "size": 77636
-  },
-  {
-    "name": "mut_03_bbox_point",
-    "path": "fixtures/mutated/mut_03_bbox_point.dxf",
-    "source": "gen_03_a3_portrait",
-    "source_group": "gen",
-    "expected_code": "E_BBOX_DEGENERATE",
-    "expected_layer": "geometry",
-    "profile": "GB_T_TIER1",
-    "observed_codes": [
-      "E_BBOX_DEGENERATE"
-    ],
-    "intercepted": true,
-    "exact_match": true,
-    "size": 76830
-  },
-  {
-    "name": "mut_04_bbox_point",
-    "path": "fixtures/mutated/mut_04_bbox_point.dxf",
-    "source": "gen_04_a3_landscape",
-    "source_group": "gen",
-    "expected_code": "E_BBOX_DEGENERATE",
-    "expected_layer": "geometry",
-    "profile": "GB_T_TIER1",
-    "observed_codes": [
-      "E_BBOX_DEGENERATE"
-    ],
-    "intercepted": true,
-    "exact_match": true,
-    "size": 76830
+    "size": 77638
   },
   {
     "name": "mut_05_profile_open",
     "path": "fixtures/mutated/mut_05_profile_open.dxf",
-    "source": "gen_05_a2_portrait",
-    "source_group": "gen",
+    "source": "PART-003",
+    "source_group": "real",
     "expected_code": "E_PROFILE_OPEN",
     "expected_layer": "standard",
     "profile": "PROFILE_CLOSURE",
@@ -77,12 +72,12 @@
     ],
     "intercepted": true,
     "exact_match": true,
-    "size": 78124
+    "size": 79384
   },
   {
     "name": "mut_06_profile_open",
     "path": "fixtures/mutated/mut_06_profile_open.dxf",
-    "source": "gen_06_a2_landscape",
+    "source": "gen_03_a3_portrait",
     "source_group": "gen",
     "expected_code": "E_PROFILE_OPEN",
     "expected_layer": "standard",
@@ -92,13 +87,13 @@
     ],
     "intercepted": true,
     "exact_match": true,
-    "size": 78124
+    "size": 76882
   },
   {
     "name": "mut_07_profile_open",
     "path": "fixtures/mutated/mut_07_profile_open.dxf",
-    "source": "gen_07_a1_portrait",
-    "source_group": "gen",
+    "source": "PART-004",
+    "source_group": "real",
     "expected_code": "E_PROFILE_OPEN",
     "expected_layer": "standard",
     "profile": "PROFILE_CLOSURE",
@@ -107,12 +102,12 @@
     ],
     "intercepted": true,
     "exact_match": true,
-    "size": 76900
+    "size": 79403
   },
   {
     "name": "mut_08_profile_open",
     "path": "fixtures/mutated/mut_08_profile_open.dxf",
-    "source": "gen_08_a1_landscape",
+    "source": "gen_04_a3_landscape",
     "source_group": "gen",
     "expected_code": "E_PROFILE_OPEN",
     "expected_layer": "standard",
@@ -122,13 +117,13 @@
     ],
     "intercepted": true,
     "exact_match": true,
-    "size": 76900
+    "size": 76882
   },
   {
     "name": "mut_09_sheet_size",
     "path": "fixtures/mutated/mut_09_sheet_size.dxf",
-    "source": "gen_09_a0_portrait",
-    "source_group": "gen",
+    "source": "PART-005",
+    "source_group": "real",
     "expected_code": "E_SHEET_SIZE",
     "expected_layer": "standard",
     "profile": "GB_T_TIER1",
@@ -137,12 +132,12 @@
     ],
     "intercepted": true,
     "exact_match": true,
-    "size": 78195
+    "size": 79397
   },
   {
     "name": "mut_10_sheet_size",
     "path": "fixtures/mutated/mut_10_sheet_size.dxf",
-    "source": "gen_10_a0_landscape",
+    "source": "gen_05_a2_portrait",
     "source_group": "gen",
     "expected_code": "E_SHEET_SIZE",
     "expected_layer": "standard",
@@ -152,13 +147,13 @@
     ],
     "intercepted": true,
     "exact_match": true,
-    "size": 78205
+    "size": 78222
   },
   {
     "name": "mut_11_sheet_size",
     "path": "fixtures/mutated/mut_11_sheet_size.dxf",
-    "source": "gen_11_a3_tol_plus",
-    "source_group": "gen",
+    "source": "PART-006",
+    "source_group": "real",
     "expected_code": "E_SHEET_SIZE",
     "expected_layer": "standard",
     "profile": "GB_T_TIER1",
@@ -167,12 +162,12 @@
     ],
     "intercepted": true,
     "exact_match": true,
-    "size": 78166
+    "size": 79420
   },
   {
     "name": "mut_12_sheet_size",
     "path": "fixtures/mutated/mut_12_sheet_size.dxf",
-    "source": "gen_12_a4_tol_minus",
+    "source": "gen_06_a2_landscape",
     "source_group": "gen",
     "expected_code": "E_SHEET_SIZE",
     "expected_layer": "standard",
@@ -182,12 +177,27 @@
     ],
     "intercepted": true,
     "exact_match": true,
-    "size": 78244
+    "size": 78174
   },
   {
     "name": "mut_13_titleblock_gone",
     "path": "fixtures/mutated/mut_13_titleblock_gone.dxf",
-    "source": "gen_13_a3_flag_off",
+    "source": "PART-007",
+    "source_group": "real",
+    "expected_code": "E_TITLE_BLOCK",
+    "expected_layer": "standard",
+    "profile": "GB_T_TIER1",
+    "observed_codes": [
+      "E_TITLE_BLOCK"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 78612
+  },
+  {
+    "name": "mut_14_titleblock_gone",
+    "path": "fixtures/mutated/mut_14_titleblock_gone.dxf",
+    "source": "gen_07_a1_portrait",
     "source_group": "gen",
     "expected_code": "E_TITLE_BLOCK",
     "expected_layer": "standard",
@@ -200,25 +210,10 @@
     "size": 75904
   },
   {
-    "name": "mut_14_titleblock_gone",
-    "path": "fixtures/mutated/mut_14_titleblock_gone.dxf",
-    "source": "gen_14_a2_tol_plus",
-    "source_group": "gen",
-    "expected_code": "E_TITLE_BLOCK",
-    "expected_layer": "standard",
-    "profile": "GB_T_TIER1",
-    "observed_codes": [
-      "E_TITLE_BLOCK"
-    ],
-    "intercepted": true,
-    "exact_match": true,
-    "size": 77183
-  },
-  {
     "name": "mut_15_titleblock_blank",
     "path": "fixtures/mutated/mut_15_titleblock_blank.dxf",
-    "source": "gen_15_a1_flag_off",
-    "source_group": "gen",
+    "source": "PART-008",
+    "source_group": "real",
     "expected_code": "E_TITLE_BLOCK_BLANK",
     "expected_layer": "standard",
     "profile": "GB_T_TIER1",
@@ -227,12 +222,12 @@
     ],
     "intercepted": true,
     "exact_match": true,
-    "size": 76937
+    "size": 79408
   },
   {
     "name": "mut_16_titleblock_blank",
     "path": "fixtures/mutated/mut_16_titleblock_blank.dxf",
-    "source": "gen_02_a4_landscape",
+    "source": "gen_08_a1_landscape",
     "source_group": "gen",
     "expected_code": "E_TITLE_BLOCK_BLANK",
     "expected_layer": "standard",
@@ -242,13 +237,13 @@
     ],
     "intercepted": true,
     "exact_match": true,
-    "size": 78250
+    "size": 76939
   },
   {
     "name": "mut_17_dim_wrong_layer",
     "path": "fixtures/mutated/mut_17_dim_wrong_layer.dxf",
-    "source": "gen_03_a3_portrait",
-    "source_group": "gen",
+    "source": "PART-009",
+    "source_group": "real",
     "expected_code": "E_DIM_ON_WRONG_LAYER",
     "expected_layer": "standard",
     "profile": "GB_T_TIER1",
@@ -257,12 +252,12 @@
     ],
     "intercepted": true,
     "exact_match": true,
-    "size": 76906
+    "size": 79410
   },
   {
     "name": "mut_18_dim_wrong_layer",
     "path": "fixtures/mutated/mut_18_dim_wrong_layer.dxf",
-    "source": "gen_04_a3_landscape",
+    "source": "gen_09_a0_portrait",
     "source_group": "gen",
     "expected_code": "E_DIM_ON_WRONG_LAYER",
     "expected_layer": "standard",
@@ -272,36 +267,38 @@
     ],
     "intercepted": true,
     "exact_match": true,
-    "size": 76906
+    "size": 78201
   },
   {
     "name": "mut_19_contour_on_zero",
     "path": "fixtures/mutated/mut_19_contour_on_zero.dxf",
-    "source": "gen_05_a2_portrait",
-    "source_group": "gen",
+    "source": "PART-010",
+    "source_group": "real",
     "expected_code": "E_CONTOUR_ON_ZERO",
     "expected_layer": "standard",
     "profile": "GB_T_TIER1",
     "observed_codes": [
+      "W_NO_CONTOUR_LAYER",
       "E_CONTOUR_ON_ZERO"
     ],
     "intercepted": true,
     "exact_match": true,
-    "size": 78204
+    "size": 79399
   },
   {
     "name": "mut_20_contour_on_zero",
     "path": "fixtures/mutated/mut_20_contour_on_zero.dxf",
-    "source": "gen_06_a2_landscape",
+    "source": "gen_10_a0_landscape",
     "source_group": "gen",
     "expected_code": "E_CONTOUR_ON_ZERO",
     "expected_layer": "standard",
     "profile": "GB_T_TIER1",
     "observed_codes": [
+      "W_NO_CONTOUR_LAYER",
       "E_CONTOUR_ON_ZERO"
     ],
     "intercepted": true,
     "exact_match": true,
-    "size": 78156
+    "size": 78192
   }
 ]

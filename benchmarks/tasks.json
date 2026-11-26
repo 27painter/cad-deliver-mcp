@@ -1,18 +1,17 @@
 {
   "profile": "GB_T_TIER1",
   "by_kind": {
-    "compliant": 15,
-    "model_export": 1,
+    "compliant": 30,
     "defective": 20
   },
   "scale": {
-    "real": 1,
+    "real": 15,
     "generated": 15,
     "mutated": 20,
-    "compliant": 15,
-    "model_export": 1,
-    "total": 36,
-    "complete_50": false
+    "compliant": 30,
+    "model_export": 0,
+    "total": 50,
+    "complete_50": true
   },
   "tasks": [
     {
@@ -166,15 +165,169 @@
       "expected_layer": ""
     },
     {
-      "name": "part_001",
-      "path": "fixtures/real/part_001.dxf",
-      "kind": "model_export",
+      "name": "PART-001",
+      "path": "fixtures/real/PART-001.DXF",
+      "kind": "compliant",
       "group": "real",
       "profile": "GB_T_TIER1",
       "defect_class": "",
       "expected_code": "",
       "expected_layer": "",
-      "note": "no content on any sheet; no title block"
+      "note": ""
+    },
+    {
+      "name": "PART-002",
+      "path": "fixtures/real/PART-002.DXF",
+      "kind": "compliant",
+      "group": "real",
+      "profile": "GB_T_TIER1",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": "",
+      "note": ""
+    },
+    {
+      "name": "PART-003",
+      "path": "fixtures/real/PART-003.DXF",
+      "kind": "compliant",
+      "group": "real",
+      "profile": "GB_T_TIER1",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": "",
+      "note": ""
+    },
+    {
+      "name": "PART-004",
+      "path": "fixtures/real/PART-004.DXF",
+      "kind": "compliant",
+      "group": "real",
+      "profile": "GB_T_TIER1",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": "",
+      "note": ""
+    },
+    {
+      "name": "PART-005",
+      "path": "fixtures/real/PART-005.DXF",
+      "kind": "compliant",
+      "group": "real",
+      "profile": "GB_T_TIER1",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": "",
+      "note": ""
+    },
+    {
+      "name": "PART-006",
+      "path": "fixtures/real/PART-006.DXF",
+      "kind": "compliant",
+      "group": "real",
+      "profile": "GB_T_TIER1",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": "",
+      "note": ""
+    },
+    {
+      "name": "PART-007",
+      "path": "fixtures/real/PART-007.DXF",
+      "kind": "compliant",
+      "group": "real",
+      "profile": "GB_T_TIER1",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": "",
+      "note": ""
+    },
+    {
+      "name": "PART-008",
+      "path": "fixtures/real/PART-008.DXF",
+      "kind": "compliant",
+      "group": "real",
+      "profile": "GB_T_TIER1",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": "",
+      "note": ""
+    },
+    {
+      "name": "PART-009",
+      "path": "fixtures/real/PART-009.DXF",
+      "kind": "compliant",
+      "group": "real",
+      "profile": "GB_T_TIER1",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": "",
+      "note": ""
+    },
+    {
+      "name": "PART-010",
+      "path": "fixtures/real/PART-010.DXF",
+      "kind": "compliant",
+      "group": "real",
+      "profile": "GB_T_TIER1",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": "",
+      "note": ""
+    },
+    {
+      "name": "PART-011",
+      "path": "fixtures/real/PART-011.DXF",
+      "kind": "compliant",
+      "group": "real",
+      "profile": "GB_T_TIER1",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": "",
+      "note": ""
+    },
+    {
+      "name": "PART-012",
+      "path": "fixtures/real/PART-012.DXF",
+      "kind": "compliant",
+      "group": "real",
+      "profile": "GB_T_TIER1",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": "",
+      "note": ""
+    },
+    {
+      "name": "PART-013",
+      "path": "fixtures/real/PART-013.DXF",
+      "kind": "compliant",
+      "group": "real",
+      "profile": "GB_T_TIER1",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": "",
+      "note": ""
+    },
+    {
+      "name": "PART-014",
+      "path": "fixtures/real/PART-014.DXF",
+      "kind": "compliant",
+      "group": "real",
+      "profile": "GB_T_TIER1",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": "",
+      "note": ""
+    },
+    {
+      "name": "PART-015",
+      "path": "fixtures/real/PART-015.DXF",
+      "kind": "compliant",
+      "group": "real",
+      "profile": "GB_T_TIER1",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": "",
+      "note": ""
     },
     {
       "name": "mut_01_bbox_point",
