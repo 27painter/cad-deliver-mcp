@@ -235,6 +235,29 @@ def check_drawing(drawing: ParsedDrawing) -> list[Check]:
         if skipped_factor
         else ""
     )
+    # Same reasoning as gb.dim_text: a scaled view multiplies every dimension by one
+    # factor, while a hand-edited text is a one-off. When the ratios agree the sheet
+    # is scaled, and the printed values state model dimensions - not a disagreement.
+    if mismatched:
+        ratios = [shown / measured for _, shown, measured in mismatched if measured]
+        if ratios:
+            mean_ratio = sum(ratios) / len(ratios)
+            spread = (
+                max(abs(r - mean_ratio) for r in ratios) / abs(mean_ratio) if mean_ratio else 1.0
+            )
+            if spread < 0.01 and abs(mean_ratio - 1.0) > 0.01 and len(ratios) > 1:
+                checks.append(
+                    Check(
+                        "drawing.dim_values",
+                        True,
+                        f"{len(ratios)} overridden dimension text(s) all read "
+                        f"{mean_ratio:.4g}x the measured length, so the view is scaled "
+                        "and the text states model values",
+                        severity="warning",
+                    )
+                )
+                mismatched = []
+
     if mismatched:
         preview = "; ".join(
             f"handle {handle}: text says {shown:g}, geometry measures {measured:g}"

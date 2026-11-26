@@ -218,7 +218,7 @@ through its own API (`scripts/batch_export_sw.py`). Same gate, same rules:
 | source            | CAD system | n  | PASS | FAIL | UNKNOWN |
 |-------------------|------------|----|------|------|---------|
 | `fixtures/real`   | AutoCAD    | 15 |   15 |    0 |       0 |
-| `fixtures/real_sw`| SolidWorks | 15 |    0 |    0 |      15 |
+| `fixtures/real_sw`| SolidWorks | 15 |    0 |    2 |      13 |
 ```
 
 **A SolidWorks DXF cannot be judged by a drafting-standard gate, and that is not a
@@ -240,6 +240,17 @@ This is the finding, not a shortcoming: the same rules that fully judge an AutoC
 drawing have nothing to read in a SolidWorks export. That is why the benchmark's
 compliant set is the AutoCAD one — and why the number above says `UNKNOWN` fifteen
 times instead of quietly reporting `PASS`.
+
+The two `FAIL`s are real and are not the contrast: `part-006` exported no dimensions
+at all, and `part-013` carries a single dimension printed 1.33x its measured length —
+one reading cannot prove a scale factor, so it is reported rather than excused. The
+other thirteen abstain on all three dimensions and land on `UNKNOWN`.
+
+`gb.dim_text` now recognises a scaled sheet: when every overridden dimension reads
+the same multiple of the measured length (7x on eight dimensions, or 2x on two), the
+view is scaled and the text states model values. A hand-edited text is a one-off
+wrong number. A single mismatch is only excused when it lands on a standard drawing
+scale, because one reading cannot establish a ratio.
 
 Reproduce with:
 

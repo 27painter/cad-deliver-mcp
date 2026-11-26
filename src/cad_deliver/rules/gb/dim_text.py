@@ -69,6 +69,46 @@ class DimTextRule(BaseStandardRule):
             if abs(shown - expected) > tolerance:
                 mismatched.append((dim.handle, shown, expected))
 
+        # A scaled view is not a wrong value. On a 1:2 sheet the geometry is drawn
+        # at half size while the dimension text still states the model value, so
+        # shown is exactly 2 x measurement on every dimension. The tell is
+        # consistency: real edited text is a one-off wrong number, whereas scaling
+        # multiplies every dimension by the same factor. When the ratios agree, the
+        # sheet is scaled and this rule has nothing to say - guessing which of the
+        # two is wrong would be inventing a verdict.
+        if mismatched:
+            from math import isclose
+
+            ratios = [shown / expected for _, shown, expected in mismatched if expected]
+            if ratios:
+                mean = sum(ratios) / len(ratios)
+                spread = max(abs(r - mean) for r in ratios) / abs(mean) if mean else 1.0
+                # One dimension cannot prove a ratio, so a single mismatch is only
+                # read as scaling when it lands on a standard drawing scale.
+                standard = (0.1, 0.2, 0.25, 0.5, 2.0, 4.0, 5.0, 10.0)
+                single_is_scale = len(ratios) == 1 and any(
+                    isclose(mean, s, rel_tol=0.01) for s in standard
+                )
+                if spread < 0.01 and abs(mean - 1.0) > 0.01 and (len(ratios) > 1 or single_is_scale):
+                    return [
+                        RuleResult(
+                            rule_id=self.rule_id,
+                            code=code,
+                            ok=True,
+                            severity=ctx.severity(code, self.default_severity),
+                            detail=(
+                                f"every overridden dimension reads {mean:.4g}x the measured "
+                                f"length ({len(ratios)} of them), so the view is scaled and the "
+                                "text states model values - not a text mismatch"
+                            ),
+                            evidence=[
+                                Evidence("measured", "scale ratio", f"{mean:.4g}"),
+                                Evidence("count", "dimensions", str(len(ratios))),
+                            ],
+                            applicable=False,
+                        )
+                    ]
+
         if not compared:
             return [
                 RuleResult(
