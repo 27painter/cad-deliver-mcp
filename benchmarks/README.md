@@ -233,26 +233,53 @@ over every compliant sample.
 
 ## Baseline: vision-language model
 
-Rendered, not yet scored. `benchmarks/renders/` holds 65 PNGs at 150 dpi — every
-mutation, every AutoCAD export, every SolidWorks export and every generated drawing —
-drawn with layer colours, line weights scaled 1.4x, and the sheet border taken from each
-layout's declared paper size so a wrong sheet reads as a wrong sheet.
+`qwen3-vl-plus` over all 65 renders.
 
-A blank render would be 0% ink; these are not blank, and they are not monochrome:
-`PART-002.png` carries 214 distinct non-white colours across 0.4% of the pixels, while
-`mut_01_bbox_point.png` — the collapsed-bbox defect — collapses to 4 colours and 0.2%
-ink, which is exactly what that defect should look like.
+```
+refused         19/20  (95%)     defect samples the model called non-compliant
+reason matched  11/20  (55%)     ... where the stated reason names the injected defect
+false positives 17/30  (57%)     compliant samples it called non-compliant
+```
 
-`benchmarks/vlm_requests.jsonl` holds 65 requests with a fixed prompt asking for five
-judgements plus, for the closure case, the coordinates of the loose ends. With a key
-present `benchmarks/eval_vlm.py` calls the model and writes `results/baseline_vlm.csv`;
-without one, answers from any client can be dropped into `vlm_answers.jsonl` and scored
-with `scripts/parse_vlm_results.py`.
+Two numbers, not one. 95% is what a "did it refuse" metric reports; it is nearly double
+what the model achieved, because it refuses almost everything — 17 of 30 compliant
+drawings as well. Reading each finding and asking whether it names the broken thing gives
+55%. **A refusal rate rewards a model that says no**; reporting only that is reporting a
+threshold, not a capability.
 
-**No row is fabricated.** `results/baseline_vlm_PENDING.md` states what is ready and
-what a result would mean, including the prediction that `E_BBOX_DEGENERATE` should be
-visible to a model while `E_CONTOUR_ON_ZERO` — a colour change — is the interesting
-open question.
+| defect class | refused | reason matched |
+|---|---:|---:|
+| `E_BBOX_DEGENERATE` | 4/4 | **4/4** |
+| `E_PROFILE_OPEN` | 4/4 | **3/4** |
+| `E_TITLE_BLOCK` | 2/2 | **2/2** |
+| `E_TITLE_BLOCK_BLANK` | 2/2 | **2/2** |
+| `E_SHEET_SIZE` | 3/4 | **0/4** |
+| `E_DIM_ON_WRONG_LAYER` | 2/2 | **0/2** |
+| `E_CONTOUR_ON_ZERO` | 2/2 | **0/2** |
+
+**Every geometric defect was found; no attribute defect was.** A part that is not drawn
+is missing from the picture. A layer name is not a picture: `E_CONTOUR_ON_ZERO` moves the
+outline to layer `0`, which plots at colour 7 — the colour the outline layer already used.
+Measured: `mut_19_contour_on_zero.png` has 18 chromatic pixels out of 18 919 non-white,
+and the compliant `PART-002.png` has 19 out of 22 159. The two are indistinguishable.
+
+Against the rule layer on the same 20 samples:
+
+| | rule layer | vision model |
+|---|---|---|
+| rejected | 20/20 | 19/20 |
+| reason / code correct | **20/20** | **11/20** |
+| false positives | **0/30** | **17/30** |
+| machine-readable | per-rule code, evidence, fix | prose |
+
+The model's standing complaint on compliant drawings was that it could not see something —
+no dimension values, indistinguishable line types — and it treated "cannot see" as "not
+compliant". The rule layer has three answers for missing information; the third is
+`UNKNOWN`. That difference is worth more than any recall figure.
+
+Full write-up, including the three render bugs that had to be fixed before the numbers
+meant anything: `results/baseline_vlm.md`. Reason verdicts are auditable in
+`benchmarks/score_vlm.py`.
 
 ## Result tables and how to reproduce them
 
@@ -264,7 +291,8 @@ open question.
 | `results/cross_ecosystem.csv` | AutoCAD vs SolidWorks under the same gate | `run_eval.py` |
 | `results/ablation_loo.csv` | per rule, what recall is lost when it is dropped | `run_eval.py` |
 | `results/baseline_dws.csv` | what a CAD Standards (.dws) comparison catches, per sample | `scripts/eval_autocad_dws.py` |
-| `results/baseline_vlm.csv` | vision-model verdicts, once a key is supplied | `benchmarks/eval_vlm.py` |
+| `results/baseline_vlm.csv` | vision-model verdicts per sample | `benchmarks/eval_vlm.py` |
+| `results/baseline_vlm_scored.csv` | the same, with whether the stated reason matches the injected defect | `benchmarks/score_vlm.py` |
 | `tasks.json` | the manifest: every sample, its kind, group, profile, expected code | `run_eval.py` |
 | `mutations.json` | per mutation: expected code, expected layer, profile | `mutate.py` |
 
@@ -281,7 +309,8 @@ python benchmarks/validate_real.py        # compliant set on its own
 # baselines
 python scripts/render_dxf_png.py          # 65 PNGs into benchmarks/renders/
 python scripts/eval_autocad_dws.py        # .dws reach, results/baseline_dws.csv
-python benchmarks/eval_vlm.py             # needs a key; else writes the request list
+python benchmarks/eval_vlm.py             # needs VLM_BASE/VLM_KEY/VLM_MODEL
+python benchmarks/score_vlm.py            # reason-matching, baseline_vlm_scored.csv
 
 # tests
 python -m pytest tests/ -q                # 74 tests

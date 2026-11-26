@@ -291,13 +291,26 @@ sample introduces a new named object. It also cannot be automated end to end her
 `SaveAs` refuses every `.dws` format constant and `_-CHECKSTANDARDS` leaves no
 machine-readable verdict — so the CSV records instrument reach, not a live run.
 
-**Vision-language model.** 65 drawings rendered at 150 dpi with layer colours, 1.4x line
-weights and the sheet border drawn from each layout's declared paper size. Prepared and
-not scored: no multimodal API key on this machine, so `results/baseline_vlm.csv` does not
-exist and no row was invented. `benchmarks/vlm_requests.jsonl` holds 65 requests with a
-fixed prompt; `benchmarks/eval_vlm.py` runs them when a key is present, and
-`scripts/parse_vlm_results.py` scores answers from any client. See
-`benchmarks/results/baseline_vlm_PENDING.md`.
+**Vision-language model.** `qwen3-vl-plus` over 65 renders:
+
+| | rule layer | vision model |
+|---|---|---|
+| rejected | 20/20 | 19/20 |
+| reason / code correct | **20/20** | **11/20** |
+| false positives | **0/30** | **17/30** |
+| machine-readable | per-rule code, evidence, fix | prose |
+
+The 95% rejection rate is nearly double the 55% achieved once each finding is read and
+checked against the injected defect — because the model refuses almost everything,
+including 17 of 30 compliant drawings. By defect class the split is clean: geometry
+4/4 and 3/4, title block 2/2 and 2/2, but **0/4 on sheet size and 0/2 on each of the two
+layer defects**.
+
+That is not a tuning problem. `E_CONTOUR_ON_ZERO` moves the outline to layer `0`, which
+plots at colour 7 — the colour the outline layer already used, so the render is unchanged:
+18 chromatic pixels out of 18 919 non-white, against 19 out of 22 159 for a compliant
+drawing. **A layer name is not a picture.** Most of what GB/T regulates is naming and
+attribution, which is precisely the part a reviewer that only looks cannot check.
 
 Reproduce with:
 
@@ -308,7 +321,8 @@ python benchmarks/mutate.py               # 10 real + 10 generated, 20 defects
 python benchmarks/run_eval.py             # tables, tasks.json, ablation_loo.csv
 python scripts/render_dxf_png.py          # 65 PNGs into benchmarks/renders/
 python scripts/eval_autocad_dws.py        # .dws reach, baseline_dws.csv
-python benchmarks/eval_vlm.py             # needs a key; otherwise writes the request list
+python benchmarks/eval_vlm.py             # needs VLM_BASE/VLM_KEY/VLM_MODEL
+python benchmarks/score_vlm.py            # reason-matching against the injected defect
 python -m pytest tests/ -q                # 74 tests
 ```
 

@@ -124,6 +124,14 @@ def write_requests(images: list[Path], expected: dict[str, dict]) -> Path:
 
 
 def detect_provider() -> tuple[str, str] | None:
+    """Return (provider, model), or None when no credentials are configured.
+
+    `VLM_BASE` + `VLM_KEY` takes precedence: any OpenAI-compatible gateway works, and
+    keeping the endpoint in the environment rather than in this file means a key never
+    reaches the repository.
+    """
+    if os.environ.get("VLM_BASE") and os.environ.get("VLM_KEY"):
+        return "custom", os.environ.get("VLM_MODEL", "qwen3-vl-plus")
     for name, env, model in (
         ("openai", "OPENAI_API_KEY", "gpt-4o"),
         ("gemini", "GEMINI_API_KEY", "gemini-2.0-flash"),
@@ -136,15 +144,19 @@ def detect_provider() -> tuple[str, str] | None:
 
 
 def call_openai_like(image: Path, model: str) -> str:
-    """Any OpenAI-compatible endpoint; DashScope exposes one at a different base."""
+    """Any OpenAI-compatible endpoint; the base URL comes from VLM_BASE or a default."""
     import urllib.request
 
-    key = os.environ.get("OPENAI_API_KEY") or os.environ.get("DASHSCOPE_API_KEY", "")
-    base = (
-        "https://dashscope.aliyuncs.com/compatible-mode/v1"
-        if os.environ.get("DASHSCOPE_API_KEY") and not os.environ.get("OPENAI_API_KEY")
-        else "https://api.openai.com/v1"
-    )
+    if os.environ.get("VLM_BASE") and os.environ.get("VLM_KEY"):
+        key = os.environ["VLM_KEY"]
+        base = os.environ["VLM_BASE"].rstrip("/")
+    else:
+        key = os.environ.get("OPENAI_API_KEY") or os.environ.get("DASHSCOPE_API_KEY", "")
+        base = (
+            "https://dashscope.aliyuncs.com/compatible-mode/v1"
+            if os.environ.get("DASHSCOPE_API_KEY") and not os.environ.get("OPENAI_API_KEY")
+            else "https://api.openai.com/v1"
+        )
     payload = {
         "model": model,
         "messages": [
@@ -253,9 +265,9 @@ def main() -> int:
         meta = expected.get(image.stem, {})
         try:
             raw = (
-                call_openai_like(image, model)
-                if provider in ("openai", "dashscope")
-                else call_gemini(image, model)
+                call_gemini(image, model)
+                if provider == "gemini"
+                else call_openai_like(image, model)
             )
             answer = parse_answer(raw)
         except Exception as exc:  # noqa: BLE001

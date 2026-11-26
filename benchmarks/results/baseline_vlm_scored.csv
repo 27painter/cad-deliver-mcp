@@ -1,0 +1,66 @@
+sample,group,expected_code,should_be_clean,vlm_refused,vlm_reported_sheet,confidence,reason_matches_defect,basis
+gen_01_a4_portrait,gen,,True,no,A3,high,,
+gen_02_a4_landscape,gen,,True,no,A3,high,,
+gen_03_a3_portrait,gen,,True,no,A4,high,,
+gen_04_a3_landscape,gen,,True,no,A3,high,,
+gen_05_a2_portrait,gen,,True,no,A3,high,,
+gen_06_a2_landscape,gen,,True,no,A3,medium,,
+gen_07_a1_portrait,gen,,True,no,A3,high,,
+gen_08_a1_landscape,gen,,True,yes,A3,medium,,
+gen_09_a0_portrait,gen,,True,yes,A3,low,,
+gen_10_a0_landscape,gen,,True,yes,A3,low,,
+gen_11_a3_tol_plus,gen,,True,no,A3,high,,
+gen_12_a4_tol_minus,gen,,True,no,A3,high,,
+gen_13_a3_flag_off,gen,,True,no,A4,high,,
+gen_14_a2_tol_plus,gen,,True,no,A3,high,,
+gen_15_a1_flag_off,gen,,True,no,A3,high,,
+mut_01_bbox_point,mutated,E_BBOX_DEGENERATE,False,yes,A4,high,yes,"no geometry, lines, or dimensions are present"
+mut_02_bbox_point,mutated,E_BBOX_DEGENERATE,False,yes,A4,high,yes,"no geometry, lines, or dimensions are present"
+mut_03_bbox_point,mutated,E_BBOX_DEGENERATE,False,yes,A3,low,yes,one red dot are visible - no geometry
+mut_04_bbox_point,mutated,E_BBOX_DEGENERATE,False,yes,A3,high,yes,"no geometry, lines, or dimensions are present"
+mut_05_profile_open,mutated,E_PROFILE_OPEN,False,yes,A3,medium,yes,outline is open ... leaving a gap
+mut_06_profile_open,mutated,E_PROFILE_OPEN,False,yes,A3,medium,yes,open contour ... does not connect to the vertical line
+mut_07_profile_open,mutated,E_PROFILE_OPEN,False,yes,A3,medium,no,no visible dimensions or line weights - never mentions the gap
+mut_08_profile_open,mutated,E_PROFILE_OPEN,False,yes,A3,medium,yes,open contour ... the two loose ends are approximately
+mut_09_sheet_size,mutated,E_SHEET_SIZE,False,yes,A3,medium,no,reports A3 as if correct; blames the title block
+mut_10_sheet_size,mutated,E_SHEET_SIZE,False,no,A3,high,no,accepts the drawing
+mut_11_sheet_size,mutated,E_SHEET_SIZE,False,yes,A3,medium,no,reports A3 as if correct
+mut_12_sheet_size,mutated,E_SHEET_SIZE,False,yes,A3,medium,no,blames a missing title block
+mut_13_titleblock_gone,mutated,E_TITLE_BLOCK,False,yes,A4,low,yes,no ... complete title block is present
+mut_14_titleblock_gone,mutated,E_TITLE_BLOCK,False,yes,A3,medium,yes,no title block
+mut_15_titleblock_blank,mutated,E_TITLE_BLOCK_BLANK,False,yes,A3,medium,yes,"no visible title block fields filled, only 图名 text present"
+mut_16_titleblock_blank,mutated,E_TITLE_BLOCK_BLANK,False,yes,A3,low,yes,no visible title block fields filled
+mut_17_dim_wrong_layer,mutated,E_DIM_ON_WRONG_LAYER,False,yes,A4,medium,no,"blames the title block, never the layer"
+mut_18_dim_wrong_layer,mutated,E_DIM_ON_WRONG_LAYER,False,yes,A3,low,no,says no visible dimensions; never mentions the layer
+mut_19_contour_on_zero,mutated,E_CONTOUR_ON_ZERO,False,yes,A4,low,no,blames a cropped image and monochrome rendering
+mut_20_contour_on_zero,mutated,E_CONTOUR_ON_ZERO,False,yes,A3,medium,no,blames a gap in the outline and a blank title block
+PART-001,real,,True,yes,A4,low,,
+PART-002,real,,True,yes,A4,medium,,
+PART-003,real,,True,yes,A3,medium,,
+PART-004,real,,True,no,A3,medium,,
+PART-005,real,,True,yes,A4,low,,
+PART-006,real,,True,yes,A3,medium,,
+PART-007,real,,True,yes,A4,medium,,
+PART-008,real,,True,yes,A3,medium,,
+PART-009,real,,True,yes,A4,medium,,
+PART-010,real,,True,yes,A4,low,,
+PART-011,real,,True,yes,A3,low,,
+PART-012,real,,True,yes,A3,low,,
+PART-013,real,,True,yes,A3,medium,,
+PART-014,real,,True,yes,A4,low,,
+PART-015,real,,True,yes,A3,medium,,
+part-001,real_sw,,False,yes,A4,low,,
+part-002,real_sw,,False,yes,A4,low,,
+part-003,real_sw,,False,yes,A4,low,,
+part-004,real_sw,,False,yes,A4,low,,
+part-005,real_sw,,False,yes,A4,low,,
+part-006,real_sw,,False,yes,A3,low,,
+part-007,real_sw,,False,yes,A3,low,,
+part-008,real_sw,,False,yes,A4,low,,
+part-009,real_sw,,False,yes,A3,low,,
+part-010,real_sw,,False,yes,A3,low,,
+part-011,real_sw,,False,yes,A3,low,,
+part-012,real_sw,,False,yes,A3,low,,
+part-013,real_sw,,False,yes,A4,low,,
+part-014,real_sw,,False,yes,A3,low,,
+part-015,real_sw,,False,yes,A3,low,,

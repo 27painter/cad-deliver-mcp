@@ -98,7 +98,20 @@ def render(path: Path, out: Path) -> tuple[int, int]:
         if len(list(layout)):
             target = layout
             break
-    frontend.draw_layout(target if target is not None else doc.modelspace(), finalize=True)
+
+    if target is None:
+        frontend.draw_layout(doc.modelspace(), finalize=True)
+    else:
+        entities = list(target)
+        # A VIEWPORT renders the model content itself, so drawing model space as well
+        # would put every part on the sheet twice. Without one - the ezdxf-generated
+        # drawings - the layout is only frame and title block, and the part lives
+        # nowhere unless model space is drawn too.
+        has_viewport = any(e.dxftype() == "VIEWPORT" for e in entities)
+        frontend.draw_layout(target, finalize=False)
+        if not has_viewport:
+            frontend.draw_layout(doc.modelspace(), finalize=False)
+        backend.finalize()
 
     # Text, placed with matplotlib's own font stack. Groups (title-block inserts) are
     # walked too, because that is where 图名 / 图号 / 比例 live.
