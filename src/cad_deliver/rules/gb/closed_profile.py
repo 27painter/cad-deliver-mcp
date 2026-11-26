@@ -4,6 +4,21 @@ An open outline is the classic agent failure: a rectangle built from four lines
 where one is missing, or a polyline that stops one vertex short. It plots as an
 almost-correct drawing, which is worse than an obviously broken one.
 
+**Applicability — read this before enabling the rule.**
+
+Closure is a property of a *single-view profile drawing*: one part, drawn as one
+contour. It does not hold for a multi-view engineering drawing, where the visible
+edges, hidden lines and centre lines are independent segments that each end
+somewhere by their own nature. A three-view DXF therefore has dangling endpoints
+by construction — sixteen of them in a typical one — and this rule fires on it
+every time, at 100%, no matter how it is tuned.
+
+That is why it lives in `PROFILE_CLOSURE` and not in `GB_T_TIER1`. The boundary is
+architectural: enabling this rule is a statement that the artefact is a profile
+drawing. Applying it to a production drawing is not a stricter check, it is a
+category error, and the resulting false positives are structural rather than
+occasional.
+
 This rule only reads the analysis `geometry/topology.py` already produced (the
 pipeline writes it back onto the drawing), so the graph is built once. The rule
 decides what an open outline *costs*; the profile decides whether that blocks.
@@ -23,14 +38,14 @@ class ClosedProfileRule(BaseStandardRule):
     layer = "standard"
     default_severity = Severity.ERROR
 
+    def precondition(self, drawing: ParsedDrawing) -> str | None:
+        """Nothing to judge when no outline geometry reached the analysis."""
+        if not drawing.open_profiles and drawing.closed_profiles == 0:
+            return "no outline geometry reached the closure analysis"
+        return None
+
     def check(self, drawing: ParsedDrawing, ctx: RuleContext) -> list[RuleResult]:
         code = Code.PROFILE_OPEN.value
-
-        # Nothing to judge: no outline pieces reached the analysis, either because
-        # the drawing has none or because every one sat on a layer that is not an
-        # outline. Saying "closed" there would be a claim about nothing.
-        if not drawing.open_profiles and drawing.closed_profiles == 0:
-            return []
 
         if not drawing.open_profiles:
             return [

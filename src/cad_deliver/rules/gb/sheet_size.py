@@ -62,7 +62,24 @@ class SheetSizeRule(BaseStandardRule):
             )
             return results
 
-        for layout in sized:
+        # Only a layout that carries content can be a sheet someone plots. And when
+        # a paper-space layout holds content, the `Model` layout is not a sheet at
+        # all: a DXF keeps it around with the application's default paper (Letter
+        # on a US install), which would report a defect about a layout nothing is
+        # printed from. Prefer paper space; fall back to any occupied layout; then
+        # to every layout that declares a size.
+        paper_space = [
+            layout
+            for layout in sized
+            if layout.name.lower() != "model" and layout.entity_count > 0
+        ]
+        if paper_space:
+            targets = paper_space
+        else:
+            occupied = [layout for layout in sized if layout.entity_count > 0]
+            targets = occupied or sized
+
+        for layout in targets:
             hit = _match_sheet(layout.paper_width, layout.paper_height)
             measured = f"{layout.paper_width:g} x {layout.paper_height:g} mm"
             if hit is None:

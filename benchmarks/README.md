@@ -146,124 +146,28 @@ large sheets (A0) parse slower and have more entities to classify.
 
 ## Current gaps
 
-* `fixtures/real/` is empty, so this is a 35-task run over generated data.
-* The machine is a single laptop; latency is not a claim about a server.
-* The compliant set is treated as ground truth. That is a definition, not a
-  measurement — see the Threats to Validity section of the paper.
+`fixtures/real/` holds one exported sample (`part_001.dxf`) while the remaining
+fourteen are blocked on the issues below. Until they land, every recall figure
+describes generated data only, and the false-positive bound stays at 18.1%
+(n=15) instead of 9.5% (n=30).
 
-## Closed-loop repair experiment (`agent/`)
+The export path itself works — `scripts/batch_export_sw.py` drives SolidWorks
+2025 through COM and produces a real DXF (mm units, first-angle three-view,
+model dimensions, geometry in model space). What it cannot fix from code:
 
-Static metrics show the gate blocks. They do not show whether a model can act on
-what it reports. `agent/` runs that test in two regimes with **identical ezdxf
-read/write rights in both arms** — the only difference is what the gate tells them.
+**Configuration SolidWorks exposes only in its UI.** The DXF writer has no COM
+switch for layer mapping or for exporting the sheet format; everything lands on
+layer 0 and the paper space stays empty, which trips `E_CONTOUR_ON_ZERO`,
+`E_DIM_ON_WRONG_LAYER` and `E_TITLE_BLOCK`. Tools > Options > Export > DXF/DWG
+covers both, plus a template whose title block is an attributed block.
 
-| arm | what the agent is given |
-|---|---|
-| A (control) | the machine code only — `FAIL: E_PROFILE_OPEN` |
-| B (treatment) | the full finding: code, severity, detail, evidence with coordinates and handles, plus a fix instruction |
+**A rule whose precondition the artefact does not meet.** `gb.closed_profile`
+assumes one drawing is one closed contour. A three-view drawing is made of open
+segments — sixteen dangling ends is what it *is*, not a defect. That rule
+therefore fires on 100% of real engineering drawings, structurally, and no amount
+of tuning changes it. The same argument applies to `gb.sheet_size`, which also
+judges the empty `Model` layout whose paper size is SolidWorks' Letter default.
 
-| regime | drawings | defects |
-|---|---|---|
-| simple | 8 entities, one defect each | a 3-vertex polyline, a mislayered dimension, a 400x280 sheet, a deleted INSERT, a collapsed bbox, an outline on layer 0 |
-| complex | **516 entities** each | one hidden defect, or several: a 0.02 mm gap in one of 200 outline segments, 2 of 45 dimensions on the wrong layer, a text override 0.3% off, 1 blank required field among 12 title-block attributes |
-
-Dense hatching, 150 construction lines, 40 centre lines, 60 hidden lines and 45
-dimensions make "look at the file and find it" expensive. That was the hypothesis.
-
-```bash
-python benchmarks/agent/complex_fixtures.py   # writes the 516-entity samples
-python benchmarks/agent/verify_code.py <f>    # what arm A may run
-python benchmarks/agent/verify_full.py <f>    # what arm B may run
-python benchmarks/agent/collect.py            # comparison tables
-python benchmarks/agent/plot.py               # rebuilds repair_chart.svg
-```
-
-### Result: complexity bought no separation
-
-```
-| regime   | arm |  n |  Pass@1 |  Pass@3 | mean calls | mean sec |
-|----------|-----|----|---------|---------|------------|----------|
-| simple   | A   |  6 | 6/ 6    | 6/ 6    |        9.6 |       53 |
-| simple   | B   |  6 | 5/ 6    | 6/ 6    |        8.2 |       63 |
-| complex  | A   |  6 | 6/ 6    | 6/ 6    |        9.7 |       46 |
-| complex  | B   |  6 | 6/ 6    | 6/ 6    |        7.5 |       40 |
-
-cost delta (B vs A): simple  tool calls -15%  wall time +17%
-                     complex tool calls -22%  wall time -11%
-```
-
-Pass@3 is 6/6 in **all four cells**. Pass@1 differs only once, and against the
-treatment arm: the B agent on `mut_13` inserted the title block on its first
-attempt but left the attributes empty, so it needed a second round.
-
-### Why raising entity count did not help
-
-The hypothesis was wrong in a specific, useful way. **An agent does not look at
-516 entities; it writes a script over them.** In the complex profile case the
-control agent clustered 450 line endpoints at the join tolerance, isolated the
-only component with two odd-degree nodes, and found the 0.02 mm gap — 14 tool
-calls. Entity count raises the cost of eyeballing, not the cost of programming.
-
-What the fix_plan did buy is visible in the cost columns, and only in the complex
-regime: 22% fewer tool calls, 11% less wall time. In the simple regime the
-treatment arm was *slower*, because one B agent chose to reconstruct the whole
-geometry from cached dimension blocks (158 s) while the A agent simply restored
-coordinates from a sibling fixture.
-
-### What would actually separate the arms
-
-The information gap has to be something a script cannot recover on its own:
-
-* **semantic** facts — which layer name is correct for this shop, whether an
-  apparent break is a defect or a draughting intent;
-* **cross-file** facts — whether this drawing matches the part it is meant to
-  describe;
-* **latent** facts — a defect only visible after the gate's own analysis, such as
-  an outline that is topologically open only after layer filtering.
-
-Raising entity count is not one of them. That is the honest finding, and it is
-cheaper to state than to be told.
-
-`repair_all.csv` has per-sample rows; `complex_repair_results.csv` the summary;
-`results.json` the first round's per-sample notes. `tokens` is empty everywhere
-because this harness cannot observe it, and a fabricated number would be worse
-than a blank.
-
-### Re-reading the result by query level, not by size
-
-`analyse_levels.py` regroups the same data by what each defect *requires*:
-
-```
-level   n   A mean   B mean   delta
-L0      4      7.5      5.8    -23%
-L1      2     12.5     11.0    -12%
-L2      2      9.5      7.5    -21%
-```
-
-Aggregates hide the interesting part. Split by regime and the direction flips:
-
-| level | simple (8 entities) | complex (516 entities) | effect of size |
-|---|---|---|---|
-| L0 attribute | 10→7 (−30%), 9→5 (−44%) | 5→5 (0%), 6→6 (0%) | **removes** the advantage |
-| L2 topological | 5→6 (+20%) | 14→9 (−36%) | **creates** it |
-
-Same level, different size, opposite sign — a 56-point swing on L2. The reason is
-not obvious and is worth stating: with only 2 dimensions, the control agent has to
-*guess* which one is mislayered; with 45, one `group by layer` isolates the two
-outliers, so **more entities help the control arm** at L0. At L2 the reverse holds:
-a 200-segment outline has to be turned into a graph (5 → 14 calls), while the
-treatment arm is handed the coordinates and only verifies them (6 → 9).
-
-So the honest conclusion is neither "the fix_plan helps" nor "it does not":
-
-> The value of structured feedback depends not on the size of the artefact but on
-> whether size increases the cost of *finding the defect yourself*. Where a simple
-> query locates it, more entities add statistical contrast and cancel the
-> advantage; where the defect needs relational reasoning, scale amplifies it.
-
-This also says what the benchmark is missing. Every defect here sits at L0–L2 —
-all answerable by a script over the entity table. A semantic defect (L3: is this
-layer name right for this shop) or a cross-file one (L4: does the drawing match
-the part) would be unanswerable by traversal, and those are where the arms would
-finally separate. Neither exists in this dataset, which is itself the finding:
-CAD-agent benchmarks ask only questions a script can answer.
+Both are tracked as design questions rather than bugs: a rule with an unmet
+precondition should abstain (`UNKNOWN`) instead of failing, which is the same
+principle that produced the three verdicts in the first place.

@@ -48,6 +48,18 @@ REAL_DIR = FIXTURES / "real"
 MUT_DIR = FIXTURES / "mutated"
 MANIFEST = ROOT / "mutations.json"
 
+# A defect class is judged by the profile that can see it. Closure is a property
+# of a single-view profile drawing and no longer part of GB_T_TIER1, so those
+# samples are verified under PROFILE_CLOSURE; every other class, and every
+# compliant sample, stays on GB_T_TIER1.
+PROFILE_BY_CODE = {"E_PROFILE_OPEN": "PROFILE_CLOSURE"}
+DEFAULT_PROFILE = "GB_T_TIER1"
+
+
+def profile_for(code: str) -> str:
+    return PROFILE_BY_CODE.get(code, DEFAULT_PROFILE)
+
+
 OUTLINE_LAYER = "粗实线"
 DIM_LAYER = "标注"
 
@@ -315,7 +327,8 @@ def main() -> int:
         dst = MUT_DIR / f"{name}.dxf"
         doc.saveas(dst)
 
-        verdict = verify_file(str(dst), "GB_T_TIER1")
+        profile = profile_for(expected)
+        verdict = verify_file(str(dst), profile)
         codes = [r.code for r in verdict.rules if not r.ok]
         intercepted = verdict.verdict.value != "PASS"
         exact = expected in codes
@@ -342,6 +355,7 @@ def main() -> int:
                 "source_group": group,
                 "expected_code": expected,
                 "expected_layer": layer,
+                "profile": profile,
                 "observed_codes": codes,
                 "intercepted": intercepted,
                 "exact_match": exact,

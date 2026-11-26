@@ -1,0 +1,21 @@
+# SolidWorks DXF/DWG layer mapping
+#
+# Load with: Tools > Options > System Options > Export > DXF/DWG
+#            > Layer mapping > Load
+#
+# Two columns: SolidWorks entity class, target DXF layer.
+# The classes are the ones the mapping dialog lists; the layers are the ones
+# cad-deliver-mcp recognises as the seven drafting roles.
+#
+# The gate expects: 粗实线 = outline, 虚线 = hidden, 中心线 = centre,
+#                   标注 = dimension, 文字 = annotation, 图框 = frame
+
+Visible Edges,粗实线
+Hidden Edges,虚线
+Centerlines,中心线
+Dimensions,标注
+Notes,文字
+Sketches,细实线
+Section Views,细实线
+View Arrows,标注
+Sheet Format,图框

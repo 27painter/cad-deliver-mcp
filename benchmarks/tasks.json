@@ -1,11 +1,17 @@
 {
   "profile": "GB_T_TIER1",
+  "by_kind": {
+    "compliant": 15,
+    "model_export": 1,
+    "defective": 20
+  },
   "scale": {
-    "real": 0,
+    "real": 1,
     "generated": 15,
     "mutated": 20,
     "compliant": 15,
-    "total": 35,
+    "model_export": 1,
+    "total": 36,
     "complete_50": false
   },
   "tasks": [
@@ -14,6 +20,7 @@
       "path": "fixtures/gen/gen_01_a4_portrait.dxf",
       "kind": "compliant",
       "group": "gen",
+      "profile": "GB_T_TIER1",
       "defect_class": "",
       "expected_code": "",
       "expected_layer": ""
@@ -23,6 +30,7 @@
       "path": "fixtures/gen/gen_02_a4_landscape.dxf",
       "kind": "compliant",
       "group": "gen",
+      "profile": "GB_T_TIER1",
       "defect_class": "",
       "expected_code": "",
       "expected_layer": ""
@@ -32,6 +40,7 @@
       "path": "fixtures/gen/gen_03_a3_portrait.dxf",
       "kind": "compliant",
       "group": "gen",
+      "profile": "GB_T_TIER1",
       "defect_class": "",
       "expected_code": "",
       "expected_layer": ""
@@ -41,6 +50,7 @@
       "path": "fixtures/gen/gen_04_a3_landscape.dxf",
       "kind": "compliant",
       "group": "gen",
+      "profile": "GB_T_TIER1",
       "defect_class": "",
       "expected_code": "",
       "expected_layer": ""
@@ -50,6 +60,7 @@
       "path": "fixtures/gen/gen_05_a2_portrait.dxf",
       "kind": "compliant",
       "group": "gen",
+      "profile": "GB_T_TIER1",
       "defect_class": "",
       "expected_code": "",
       "expected_layer": ""
@@ -59,6 +70,7 @@
       "path": "fixtures/gen/gen_06_a2_landscape.dxf",
       "kind": "compliant",
       "group": "gen",
+      "profile": "GB_T_TIER1",
       "defect_class": "",
       "expected_code": "",
       "expected_layer": ""
@@ -68,6 +80,7 @@
       "path": "fixtures/gen/gen_07_a1_portrait.dxf",
       "kind": "compliant",
       "group": "gen",
+      "profile": "GB_T_TIER1",
       "defect_class": "",
       "expected_code": "",
       "expected_layer": ""
@@ -77,6 +90,7 @@
       "path": "fixtures/gen/gen_08_a1_landscape.dxf",
       "kind": "compliant",
       "group": "gen",
+      "profile": "GB_T_TIER1",
       "defect_class": "",
       "expected_code": "",
       "expected_layer": ""
@@ -86,6 +100,7 @@
       "path": "fixtures/gen/gen_09_a0_portrait.dxf",
       "kind": "compliant",
       "group": "gen",
+      "profile": "GB_T_TIER1",
       "defect_class": "",
       "expected_code": "",
       "expected_layer": ""
@@ -95,6 +110,7 @@
       "path": "fixtures/gen/gen_10_a0_landscape.dxf",
       "kind": "compliant",
       "group": "gen",
+      "profile": "GB_T_TIER1",
       "defect_class": "",
       "expected_code": "",
       "expected_layer": ""
@@ -104,6 +120,7 @@
       "path": "fixtures/gen/gen_11_a3_tol_plus.dxf",
       "kind": "compliant",
       "group": "gen",
+      "profile": "GB_T_TIER1",
       "defect_class": "",
       "expected_code": "",
       "expected_layer": ""
@@ -113,6 +130,7 @@
       "path": "fixtures/gen/gen_12_a4_tol_minus.dxf",
       "kind": "compliant",
       "group": "gen",
+      "profile": "GB_T_TIER1",
       "defect_class": "",
       "expected_code": "",
       "expected_layer": ""
@@ -122,6 +140,7 @@
       "path": "fixtures/gen/gen_13_a3_flag_off.dxf",
       "kind": "compliant",
       "group": "gen",
+      "profile": "GB_T_TIER1",
       "defect_class": "",
       "expected_code": "",
       "expected_layer": ""
@@ -131,6 +150,7 @@
       "path": "fixtures/gen/gen_14_a2_tol_plus.dxf",
       "kind": "compliant",
       "group": "gen",
+      "profile": "GB_T_TIER1",
       "defect_class": "",
       "expected_code": "",
       "expected_layer": ""
@@ -140,9 +160,21 @@
       "path": "fixtures/gen/gen_15_a1_flag_off.dxf",
       "kind": "compliant",
       "group": "gen",
+      "profile": "GB_T_TIER1",
       "defect_class": "",
       "expected_code": "",
       "expected_layer": ""
+    },
+    {
+      "name": "part_001",
+      "path": "fixtures/real/part_001.dxf",
+      "kind": "model_export",
+      "group": "real",
+      "profile": "GB_T_TIER1",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": "",
+      "note": "no content on any sheet; no title block"
     },
     {
       "name": "mut_01_bbox_point",
@@ -151,7 +183,8 @@
       "group": "mutated",
       "defect_class": "degenerate bbox",
       "expected_code": "E_BBOX_DEGENERATE",
-      "expected_layer": "geometry"
+      "expected_layer": "geometry",
+      "profile": "GB_T_TIER1"
     },
     {
       "name": "mut_02_bbox_point",
@@ -160,7 +193,8 @@
       "group": "mutated",
       "defect_class": "degenerate bbox",
       "expected_code": "E_BBOX_DEGENERATE",
-      "expected_layer": "geometry"
+      "expected_layer": "geometry",
+      "profile": "GB_T_TIER1"
     },
     {
       "name": "mut_03_bbox_point",
@@ -169,7 +203,8 @@
       "group": "mutated",
       "defect_class": "degenerate bbox",
       "expected_code": "E_BBOX_DEGENERATE",
-      "expected_layer": "geometry"
+      "expected_layer": "geometry",
+      "profile": "GB_T_TIER1"
     },
     {
       "name": "mut_04_bbox_point",
@@ -178,7 +213,8 @@
       "group": "mutated",
       "defect_class": "degenerate bbox",
       "expected_code": "E_BBOX_DEGENERATE",
-      "expected_layer": "geometry"
+      "expected_layer": "geometry",
+      "profile": "GB_T_TIER1"
     },
     {
       "name": "mut_05_profile_open",
@@ -187,7 +223,8 @@
       "group": "mutated",
       "defect_class": "open profile",
       "expected_code": "E_PROFILE_OPEN",
-      "expected_layer": "standard"
+      "expected_layer": "standard",
+      "profile": "PROFILE_CLOSURE"
     },
     {
       "name": "mut_06_profile_open",
@@ -196,7 +233,8 @@
       "group": "mutated",
       "defect_class": "open profile",
       "expected_code": "E_PROFILE_OPEN",
-      "expected_layer": "standard"
+      "expected_layer": "standard",
+      "profile": "PROFILE_CLOSURE"
     },
     {
       "name": "mut_07_profile_open",
@@ -205,7 +243,8 @@
       "group": "mutated",
       "defect_class": "open profile",
       "expected_code": "E_PROFILE_OPEN",
-      "expected_layer": "standard"
+      "expected_layer": "standard",
+      "profile": "PROFILE_CLOSURE"
     },
     {
       "name": "mut_08_profile_open",
@@ -214,7 +253,8 @@
       "group": "mutated",
       "defect_class": "open profile",
       "expected_code": "E_PROFILE_OPEN",
-      "expected_layer": "standard"
+      "expected_layer": "standard",
+      "profile": "PROFILE_CLOSURE"
     },
     {
       "name": "mut_09_sheet_size",
@@ -223,7 +263,8 @@
       "group": "mutated",
       "defect_class": "non-standard sheet",
       "expected_code": "E_SHEET_SIZE",
-      "expected_layer": "standard"
+      "expected_layer": "standard",
+      "profile": "GB_T_TIER1"
     },
     {
       "name": "mut_10_sheet_size",
@@ -232,7 +273,8 @@
       "group": "mutated",
       "defect_class": "non-standard sheet",
       "expected_code": "E_SHEET_SIZE",
-      "expected_layer": "standard"
+      "expected_layer": "standard",
+      "profile": "GB_T_TIER1"
     },
     {
       "name": "mut_11_sheet_size",
@@ -241,7 +283,8 @@
       "group": "mutated",
       "defect_class": "non-standard sheet",
       "expected_code": "E_SHEET_SIZE",
-      "expected_layer": "standard"
+      "expected_layer": "standard",
+      "profile": "GB_T_TIER1"
     },
     {
       "name": "mut_12_sheet_size",
@@ -250,7 +293,8 @@
       "group": "mutated",
       "defect_class": "non-standard sheet",
       "expected_code": "E_SHEET_SIZE",
-      "expected_layer": "standard"
+      "expected_layer": "standard",
+      "profile": "GB_T_TIER1"
     },
     {
       "name": "mut_13_titleblock_gone",
@@ -259,7 +303,8 @@
       "group": "mutated",
       "defect_class": "missing title block",
       "expected_code": "E_TITLE_BLOCK",
-      "expected_layer": "standard"
+      "expected_layer": "standard",
+      "profile": "GB_T_TIER1"
     },
     {
       "name": "mut_14_titleblock_gone",
@@ -268,7 +313,8 @@
       "group": "mutated",
       "defect_class": "missing title block",
       "expected_code": "E_TITLE_BLOCK",
-      "expected_layer": "standard"
+      "expected_layer": "standard",
+      "profile": "GB_T_TIER1"
     },
     {
       "name": "mut_15_titleblock_blank",
@@ -277,7 +323,8 @@
       "group": "mutated",
       "defect_class": "missing title block",
       "expected_code": "E_TITLE_BLOCK_BLANK",
-      "expected_layer": "standard"
+      "expected_layer": "standard",
+      "profile": "GB_T_TIER1"
     },
     {
       "name": "mut_16_titleblock_blank",
@@ -286,7 +333,8 @@
       "group": "mutated",
       "defect_class": "missing title block",
       "expected_code": "E_TITLE_BLOCK_BLANK",
-      "expected_layer": "standard"
+      "expected_layer": "standard",
+      "profile": "GB_T_TIER1"
     },
     {
       "name": "mut_17_dim_wrong_layer",
@@ -295,7 +343,8 @@
       "group": "mutated",
       "defect_class": "dimension on wrong layer",
       "expected_code": "E_DIM_ON_WRONG_LAYER",
-      "expected_layer": "standard"
+      "expected_layer": "standard",
+      "profile": "GB_T_TIER1"
     },
     {
       "name": "mut_18_dim_wrong_layer",
@@ -304,7 +353,8 @@
       "group": "mutated",
       "defect_class": "dimension on wrong layer",
       "expected_code": "E_DIM_ON_WRONG_LAYER",
-      "expected_layer": "standard"
+      "expected_layer": "standard",
+      "profile": "GB_T_TIER1"
     },
     {
       "name": "mut_19_contour_on_zero",
@@ -313,7 +363,8 @@
       "group": "mutated",
       "defect_class": "outline on layer 0",
       "expected_code": "E_CONTOUR_ON_ZERO",
-      "expected_layer": "standard"
+      "expected_layer": "standard",
+      "profile": "GB_T_TIER1"
     },
     {
       "name": "mut_20_contour_on_zero",
@@ -322,7 +373,8 @@
       "group": "mutated",
       "defect_class": "outline on layer 0",
       "expected_code": "E_CONTOUR_ON_ZERO",
-      "expected_layer": "standard"
+      "expected_layer": "standard",
+      "profile": "GB_T_TIER1"
     }
   ]
 }

@@ -150,6 +150,35 @@ def defect_class(expected: str) -> str:
     return DEFECT_LABELS.get(expected, expected)
 
 
+DRAWING_CHECKS = ("drawing.sheets", "drawing.titleblock")
+
+
+def looks_like_engineering_drawing(path: Path) -> tuple[bool, str]:
+    """Is this a drawing, or a model exported as DXF?
+
+    A CAD vendor's DXF export writes model geometry and nothing else: no paper
+    space content, no title block, everything on layer 0 with an inch unit. That
+    is a legitimate artefact but it is not an engineering drawing, and counting it
+    as a compliant sample would report the gate as producing false positives when
+    it is in fact naming the artefact for what it is.
+
+    The test is deliberately structural and cheap: does anything sit on a sheet,
+    and is there a title block. Both come from the same checks the CLI reports.
+    """
+    from cad_deliver.pipeline import verify_file
+
+    verdict = verify_file(path, "GB_T_TIER1")
+    by_id = {check.ident: check for check in verdict.checks}
+    missing = [name for name in DRAWING_CHECKS if not by_id.get(name) or not by_id[name].ok]
+    if not missing:
+        return True, ""
+    reasons = []
+    if "drawing.sheets" in missing:
+        reasons.append("no content on any sheet")
+    if "drawing.titleblock" in missing:
+        reasons.append("no title block")
+    return False, "; ".join(reasons)
+
 def build_tasks() -> dict:
     tasks: list[dict] = []
 
@@ -164,6 +193,7 @@ def build_tasks() -> dict:
                 "path": str(path.relative_to(ROOT)).replace("\\", "/"),
                 "kind": "compliant",
                 "group": "gen",
+                "profile": PROFILE,
                 "defect_class": "",
                 "expected_code": "",
                 "expected_layer": "",
@@ -171,15 +201,18 @@ def build_tasks() -> dict:
         )
 
     for path in real:
+        is_drawing, why = looks_like_engineering_drawing(path)
         tasks.append(
             {
                 "name": path.stem,
                 "path": str(path.relative_to(ROOT)).replace("\\", "/"),
-                "kind": "compliant",
+                "kind": "compliant" if is_drawing else "model_export",
                 "group": "real",
+                "profile": PROFILE,
                 "defect_class": "",
                 "expected_code": "",
                 "expected_layer": "",
+                "note": why,
             }
         )
 
@@ -200,16 +233,25 @@ def build_tasks() -> dict:
                 "defect_class": defect_class(expected),
                 "expected_code": expected,
                 "expected_layer": meta.get("expected_layer", ""),
+                "profile": meta.get("profile", PROFILE),
             }
         )
 
+    by_kind: dict[str, int] = {}
+    for task in tasks:
+        by_kind[task["kind"]] = by_kind.get(task["kind"], 0) + 1
+
     return {
         "profile": PROFILE,
+        "by_kind": by_kind,
         "scale": {
             "real": len(real),
             "generated": len(gen),
             "mutated": len(mutated),
-            "compliant": len(gen) + len(real),
+            # From task kinds, not file counts: a real export that is not an
+            # engineering drawing must not be counted as a compliant sample.
+            "compliant": by_kind.get("compliant", 0),
+            "model_export": by_kind.get("model_export", 0),
             "total": len(tasks),
             "complete_50": len(real) >= 15,
         },
@@ -255,7 +297,10 @@ def main() -> int:
         for arm in ARMS:
             started = time.perf_counter()
             if arm == "G3":
-                verdict = verify_file(path, PROFILE)
+                # Closure samples are judged by PROFILE_CLOSURE; everything else
+                # by GB_T_TIER1. A defect class is measured by the profile that
+                # can see it, otherwise its recall is zero by construction.
+                verdict = verify_file(path, task.get("profile", PROFILE))
                 verdicts["G3"][task["name"]] = verdict.verdict.value
                 g3_codes[task["name"]] = [r.code for r in verdict.rules if not r.ok]
             else:

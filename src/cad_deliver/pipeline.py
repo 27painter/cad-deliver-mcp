@@ -87,21 +87,26 @@ class FileVerdict:
     # -------------------------------------------------------------- verdict
 
     @property
+    def not_applicable(self) -> list:
+        """Rules that stepped aside because their precondition did not hold."""
+        return [r for r in self.rules if not r.applicable]
+
+    @property
     def errors(self) -> list:
         bad = [c for c in self.checks if not c.ok and c.severity == Severity.ERROR.value]
-        bad += [r for r in self.rules if not r.ok and r.severity is Severity.ERROR]
+        bad += [r for r in self.rules if not r.ok and r.severity is Severity.ERROR and r.applicable]
         return bad
 
     @property
     def blocked(self) -> list:
         bad = [c for c in self.checks if not c.ok and c.severity == Severity.BLOCKED.value]
-        bad += [r for r in self.rules if not r.ok and r.severity is Severity.BLOCKED]
+        bad += [r for r in self.rules if not r.ok and r.severity is Severity.BLOCKED and r.applicable]
         return bad
 
     @property
     def warnings(self) -> list:
         bad = [c for c in self.checks if not c.ok and c.severity == Severity.WARNING.value]
-        bad += [r for r in self.rules if not r.ok and r.severity is Severity.WARNING]
+        bad += [r for r in self.rules if not r.ok and r.severity is Severity.WARNING and r.applicable]
         return bad
 
     @property
@@ -120,7 +125,7 @@ class FileVerdict:
             fix_for(c) for c in self.checks if not c.ok and c.severity == Severity.ERROR.value
         ]
         out = [fix for fix in blocking if fix]
-        out += [r.fix for r in self.rules if not r.ok and r.fix]
+        out += [r.fix for r in self.rules if not r.ok and r.fix and r.applicable]
         # Keep the order, drop duplicates: two failures often share one action.
         seen: set[str] = set()
         unique = []

@@ -135,13 +135,15 @@ def test_outline_layer_predicate():
 
 # ---------------------------------------------------------------- the rule
 
-def test_rule_reports_open_profile_as_error_in_tier1():
+def test_rule_reports_open_profile_under_closure_profile():
+    """Closure lives in PROFILE_CLOSURE: it does not apply to a multi-view drawing."""
+
     broken = drawing(rectangle("轮廓线", skip={3}))
     outline = analyse(broken)
     broken.open_profiles = outline.open
     broken.closed_profiles = outline.closed
 
-    results = [r for r in run_profile(broken, "GB_T_TIER1") if r.code == Code.PROFILE_OPEN.value]
+    results = [r for r in run_profile(broken, "PROFILE_CLOSURE") if r.code == Code.PROFILE_OPEN.value]
     assert results, "the rule must fire on a broken outline"
     result = results[0]
     assert not result.ok
@@ -157,7 +159,7 @@ def test_rule_stays_quiet_when_there_is_no_outline_to_judge():
     outline = analyse(empty)
     empty.open_profiles = outline.open
     empty.closed_profiles = outline.closed
-    assert [r for r in run_profile(empty, "GB_T_TIER1") if r.code == Code.PROFILE_OPEN.value] == []
+    assert [r for r in run_profile(empty, "PROFILE_CLOSURE") if r.code == Code.PROFILE_OPEN.value] == []
 
 
 def test_rule_passes_on_closed_outline():
@@ -165,7 +167,7 @@ def test_rule_passes_on_closed_outline():
     outline = analyse(good)
     good.open_profiles = outline.open
     good.closed_profiles = outline.closed
-    results = [r for r in run_profile(good, "GB_T_TIER1") if r.code == Code.PROFILE_OPEN.value]
+    results = [r for r in run_profile(good, "PROFILE_CLOSURE") if r.code == Code.PROFILE_OPEN.value]
     assert results and results[0].ok
 
 

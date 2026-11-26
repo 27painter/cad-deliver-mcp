@@ -42,12 +42,20 @@ class RuleResult:
     detail: str
     evidence: list[Evidence] = field(default_factory=list)
     fix: str | None = None     # a concrete action, not "please check"
+    # False when the rule's precondition does not hold for this artefact. Such a
+    # result never blocks: the rule says "this does not apply here", which is
+    # neither a pass nor a failure. Collapsing it into either one is what makes a
+    # gate produce structural false positives on artefacts it was not designed
+    # for — a three-view drawing has open edges by construction, so a closure rule
+    # fires on 100% of them, forever, no matter how it is tuned.
+    applicable: bool = True
 
     def as_dict(self) -> dict:
         return {
             "rule": self.rule_id,
             "code": self.code,
             "ok": self.ok,
+            "applicable": self.applicable,
             "severity": self.severity.value,
             "detail": self.detail,
             "evidence": [e.__dict__ for e in self.evidence],
@@ -81,6 +89,17 @@ class BaseStandardRule(ABC):
     def check(self, drawing: ParsedDrawing, ctx: RuleContext) -> list[RuleResult]:
         """Return one result per assertion. Never raise on bad input."""
         raise NotImplementedError
+
+    def precondition(self, drawing: ParsedDrawing) -> str | None:
+        """Return why this rule does not apply here, or None when it does.
+
+        A rule is written for a shape of artefact: a single-view profile drawing,
+        a sheet with a title block, a dimension on a dimension layer. When the
+        artefact is a different shape, the rule is not wrong — it is irrelevant.
+        The difference matters because irrelevance repeats on every such file,
+        while a wrong verdict is a bug that can be fixed.
+        """
+        return None
 
 
 # We deliberately do not use a decorator that binds a profile to a rule: the

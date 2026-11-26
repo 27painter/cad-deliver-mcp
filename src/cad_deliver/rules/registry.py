@@ -20,7 +20,7 @@ profile enabled it — that is the comparison a reader switching profiles wants.
 from __future__ import annotations
 
 from ..models import ParsedDrawing, Severity
-from .base import BaseStandardRule, RuleContext, RuleResult, all_rules, get_rule
+from .base import BaseStandardRule, Evidence, RuleContext, RuleResult, all_rules, get_rule
 from .codes import Code
 
 PROFILES: dict[str, list[str]] = {
@@ -36,12 +36,18 @@ PROFILES: dict[str, list[str]] = {
         "geo.bbox_degenerate",
         "gb.sheet_size",
         "gb.layer_taxonomy",
-        "gb.closed_profile",
         "gb.dim_text",
         "gb.title_block",
     ],
     # Same sheet rule, different standard: proof that a rule is reusable and
     # only the profile decides what runs.
+    # Closure is a property of a single-view profile drawing. A multi-view drawing
+    # is made of open edge segments by construction, so applying this rule there
+    # is not a stricter check, it is a category error. Kept as its own profile so
+    # the boundary is architectural rather than a runtime guess.
+    "PROFILE_CLOSURE": [
+        "gb.closed_profile",
+    ],
     "ISO_216_TIER1": [
         "gb.sheet_size",
     ],
@@ -110,6 +116,28 @@ def run_profile(
     results: list[RuleResult] = []
     for rule_id in PROFILES[profile]:
         rule: BaseStandardRule = get_rule(rule_id)
+
+        # A rule whose precondition does not hold is not consulted. It reports why
+        # it stepped aside, as a non-blocking result, so the record shows the rule
+        # ran and abstained rather than silently vanishing from the profile.
+        try:
+            reason = rule.precondition(drawing)
+        except Exception as exc:  # noqa: BLE001 - a precondition must not crash the gate
+            reason = f"precondition raised {type(exc).__name__}: {exc}"
+        if reason:
+            results.append(
+                RuleResult(
+                    rule_id=rule_id,
+                    code="NOT_APPLICABLE",
+                    ok=True,
+                    severity=Severity.WARNING,
+                    detail=f"{rule_id} does not apply to this artefact: {reason}",
+                    evidence=[Evidence("name", "rule", rule_id)],
+                    applicable=False,
+                )
+            )
+            continue
+
         try:
             results.extend(rule.check(drawing, ctx))
         except Exception as exc:  # a broken rule must not take the gate down
