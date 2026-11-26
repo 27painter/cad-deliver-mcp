@@ -1,0 +1,328 @@
+{
+  "profile": "GB_T_TIER1",
+  "scale": {
+    "real": 0,
+    "generated": 15,
+    "mutated": 20,
+    "compliant": 15,
+    "total": 35,
+    "complete_50": false
+  },
+  "tasks": [
+    {
+      "name": "gen_01_a4_portrait",
+      "path": "fixtures/gen/gen_01_a4_portrait.dxf",
+      "kind": "compliant",
+      "group": "gen",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": ""
+    },
+    {
+      "name": "gen_02_a4_landscape",
+      "path": "fixtures/gen/gen_02_a4_landscape.dxf",
+      "kind": "compliant",
+      "group": "gen",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": ""
+    },
+    {
+      "name": "gen_03_a3_portrait",
+      "path": "fixtures/gen/gen_03_a3_portrait.dxf",
+      "kind": "compliant",
+      "group": "gen",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": ""
+    },
+    {
+      "name": "gen_04_a3_landscape",
+      "path": "fixtures/gen/gen_04_a3_landscape.dxf",
+      "kind": "compliant",
+      "group": "gen",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": ""
+    },
+    {
+      "name": "gen_05_a2_portrait",
+      "path": "fixtures/gen/gen_05_a2_portrait.dxf",
+      "kind": "compliant",
+      "group": "gen",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": ""
+    },
+    {
+      "name": "gen_06_a2_landscape",
+      "path": "fixtures/gen/gen_06_a2_landscape.dxf",
+      "kind": "compliant",
+      "group": "gen",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": ""
+    },
+    {
+      "name": "gen_07_a1_portrait",
+      "path": "fixtures/gen/gen_07_a1_portrait.dxf",
+      "kind": "compliant",
+      "group": "gen",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": ""
+    },
+    {
+      "name": "gen_08_a1_landscape",
+      "path": "fixtures/gen/gen_08_a1_landscape.dxf",
+      "kind": "compliant",
+      "group": "gen",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": ""
+    },
+    {
+      "name": "gen_09_a0_portrait",
+      "path": "fixtures/gen/gen_09_a0_portrait.dxf",
+      "kind": "compliant",
+      "group": "gen",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": ""
+    },
+    {
+      "name": "gen_10_a0_landscape",
+      "path": "fixtures/gen/gen_10_a0_landscape.dxf",
+      "kind": "compliant",
+      "group": "gen",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": ""
+    },
+    {
+      "name": "gen_11_a3_tol_plus",
+      "path": "fixtures/gen/gen_11_a3_tol_plus.dxf",
+      "kind": "compliant",
+      "group": "gen",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": ""
+    },
+    {
+      "name": "gen_12_a4_tol_minus",
+      "path": "fixtures/gen/gen_12_a4_tol_minus.dxf",
+      "kind": "compliant",
+      "group": "gen",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": ""
+    },
+    {
+      "name": "gen_13_a3_flag_off",
+      "path": "fixtures/gen/gen_13_a3_flag_off.dxf",
+      "kind": "compliant",
+      "group": "gen",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": ""
+    },
+    {
+      "name": "gen_14_a2_tol_plus",
+      "path": "fixtures/gen/gen_14_a2_tol_plus.dxf",
+      "kind": "compliant",
+      "group": "gen",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": ""
+    },
+    {
+      "name": "gen_15_a1_flag_off",
+      "path": "fixtures/gen/gen_15_a1_flag_off.dxf",
+      "kind": "compliant",
+      "group": "gen",
+      "defect_class": "",
+      "expected_code": "",
+      "expected_layer": ""
+    },
+    {
+      "name": "mut_01_bbox_point",
+      "path": "fixtures/mutated/mut_01_bbox_point.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "degenerate bbox",
+      "expected_code": "E_BBOX_DEGENERATE",
+      "expected_layer": "geometry"
+    },
+    {
+      "name": "mut_02_bbox_point",
+      "path": "fixtures/mutated/mut_02_bbox_point.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "degenerate bbox",
+      "expected_code": "E_BBOX_DEGENERATE",
+      "expected_layer": "geometry"
+    },
+    {
+      "name": "mut_03_bbox_point",
+      "path": "fixtures/mutated/mut_03_bbox_point.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "degenerate bbox",
+      "expected_code": "E_BBOX_DEGENERATE",
+      "expected_layer": "geometry"
+    },
+    {
+      "name": "mut_04_bbox_point",
+      "path": "fixtures/mutated/mut_04_bbox_point.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "degenerate bbox",
+      "expected_code": "E_BBOX_DEGENERATE",
+      "expected_layer": "geometry"
+    },
+    {
+      "name": "mut_05_profile_open",
+      "path": "fixtures/mutated/mut_05_profile_open.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "open profile",
+      "expected_code": "E_PROFILE_OPEN",
+      "expected_layer": "standard"
+    },
+    {
+      "name": "mut_06_profile_open",
+      "path": "fixtures/mutated/mut_06_profile_open.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "open profile",
+      "expected_code": "E_PROFILE_OPEN",
+      "expected_layer": "standard"
+    },
+    {
+      "name": "mut_07_profile_open",
+      "path": "fixtures/mutated/mut_07_profile_open.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "open profile",
+      "expected_code": "E_PROFILE_OPEN",
+      "expected_layer": "standard"
+    },
+    {
+      "name": "mut_08_profile_open",
+      "path": "fixtures/mutated/mut_08_profile_open.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "open profile",
+      "expected_code": "E_PROFILE_OPEN",
+      "expected_layer": "standard"
+    },
+    {
+      "name": "mut_09_sheet_size",
+      "path": "fixtures/mutated/mut_09_sheet_size.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "non-standard sheet",
+      "expected_code": "E_SHEET_SIZE",
+      "expected_layer": "standard"
+    },
+    {
+      "name": "mut_10_sheet_size",
+      "path": "fixtures/mutated/mut_10_sheet_size.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "non-standard sheet",
+      "expected_code": "E_SHEET_SIZE",
+      "expected_layer": "standard"
+    },
+    {
+      "name": "mut_11_sheet_size",
+      "path": "fixtures/mutated/mut_11_sheet_size.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "non-standard sheet",
+      "expected_code": "E_SHEET_SIZE",
+      "expected_layer": "standard"
+    },
+    {
+      "name": "mut_12_sheet_size",
+      "path": "fixtures/mutated/mut_12_sheet_size.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "non-standard sheet",
+      "expected_code": "E_SHEET_SIZE",
+      "expected_layer": "standard"
+    },
+    {
+      "name": "mut_13_titleblock_gone",
+      "path": "fixtures/mutated/mut_13_titleblock_gone.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "missing title block",
+      "expected_code": "E_TITLE_BLOCK",
+      "expected_layer": "standard"
+    },
+    {
+      "name": "mut_14_titleblock_gone",
+      "path": "fixtures/mutated/mut_14_titleblock_gone.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "missing title block",
+      "expected_code": "E_TITLE_BLOCK",
+      "expected_layer": "standard"
+    },
+    {
+      "name": "mut_15_titleblock_blank",
+      "path": "fixtures/mutated/mut_15_titleblock_blank.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "missing title block",
+      "expected_code": "E_TITLE_BLOCK_BLANK",
+      "expected_layer": "standard"
+    },
+    {
+      "name": "mut_16_titleblock_blank",
+      "path": "fixtures/mutated/mut_16_titleblock_blank.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "missing title block",
+      "expected_code": "E_TITLE_BLOCK_BLANK",
+      "expected_layer": "standard"
+    },
+    {
+      "name": "mut_17_dim_wrong_layer",
+      "path": "fixtures/mutated/mut_17_dim_wrong_layer.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "dimension on wrong layer",
+      "expected_code": "E_DIM_ON_WRONG_LAYER",
+      "expected_layer": "standard"
+    },
+    {
+      "name": "mut_18_dim_wrong_layer",
+      "path": "fixtures/mutated/mut_18_dim_wrong_layer.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "dimension on wrong layer",
+      "expected_code": "E_DIM_ON_WRONG_LAYER",
+      "expected_layer": "standard"
+    },
+    {
+      "name": "mut_19_contour_on_zero",
+      "path": "fixtures/mutated/mut_19_contour_on_zero.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "outline on layer 0",
+      "expected_code": "E_CONTOUR_ON_ZERO",
+      "expected_layer": "standard"
+    },
+    {
+      "name": "mut_20_contour_on_zero",
+      "path": "fixtures/mutated/mut_20_contour_on_zero.dxf",
+      "kind": "defective",
+      "group": "mutated",
+      "defect_class": "outline on layer 0",
+      "expected_code": "E_CONTOUR_ON_ZERO",
+      "expected_layer": "standard"
+    }
+  ]
+}

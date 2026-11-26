@@ -1,0 +1,6 @@
+arm,n_compliant,false_positives,fp_rate,cp_upper95
+G1,15,0,0.0,0.181
+G2,15,0,0.0,0.181
+G2.5,15,0,0.0,0.181
+G3,15,0,0.0,0.181
+LEGACY_COMPAT,15,0,0.0,0.181

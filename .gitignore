@@ -12,9 +12,6 @@ src/*.egg-link
 
 # Test and benchmark output
 delivery.json
-benchmarks/results/*.csv
-benchmarks/fixtures/defective/
-!benchmarks/results/.gitkeep
 
 # Backups created by hand
 *.bak-*
@@ -22,3 +19,16 @@ benchmarks/fixtures/defective/
 # OS
 Thumbs.db
 .DS_Store
+
+# Generated fixtures are reproducible: generate_fixtures.py and mutate.py rebuild
+# them from the committed scripts, so 35 DXFs do not belong in git. The real
+# exports in fixtures/real/ are NOT ignored - they cannot be regenerated, and they
+# are what proves the benchmark is not working on synthetic data alone.
+benchmarks/__pycache__/
+benchmarks/fixtures/gen/*.dxf
+benchmarks/fixtures/mutated/*.dxf
+!benchmarks/fixtures/gen/.gitkeep
+!benchmarks/fixtures/mutated/.gitkeep
+
+# The manifest, the task list and the result tables ARE committed: they are the
+# evidence behind every number reported.

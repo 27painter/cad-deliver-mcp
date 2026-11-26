@@ -1,0 +1,262 @@
+[
+  {
+    "name": "mut_01_bbox_point",
+    "path": "fixtures/mutated/mut_01_bbox_point.dxf",
+    "source": "gen_01_a4_portrait",
+    "expected_code": "E_BBOX_DEGENERATE",
+    "expected_layer": "geometry",
+    "observed_codes": [
+      "E_BBOX_DEGENERATE"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 76179
+  },
+  {
+    "name": "mut_02_bbox_point",
+    "path": "fixtures/mutated/mut_02_bbox_point.dxf",
+    "source": "gen_04_a3_landscape",
+    "expected_code": "E_BBOX_DEGENERATE",
+    "expected_layer": "geometry",
+    "observed_codes": [
+      "E_BBOX_DEGENERATE"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 75444
+  },
+  {
+    "name": "mut_03_bbox_point",
+    "path": "fixtures/mutated/mut_03_bbox_point.dxf",
+    "source": "gen_07_a1_portrait",
+    "expected_code": "E_BBOX_DEGENERATE",
+    "expected_layer": "geometry",
+    "observed_codes": [
+      "E_BBOX_DEGENERATE"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 75454
+  },
+  {
+    "name": "mut_04_bbox_point",
+    "path": "fixtures/mutated/mut_04_bbox_point.dxf",
+    "source": "gen_10_a0_landscape",
+    "expected_code": "E_BBOX_DEGENERATE",
+    "expected_layer": "geometry",
+    "observed_codes": [
+      "E_BBOX_DEGENERATE"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 76180
+  },
+  {
+    "name": "mut_05_profile_open",
+    "path": "fixtures/mutated/mut_05_profile_open.dxf",
+    "source": "gen_03_a3_portrait",
+    "expected_code": "E_PROFILE_OPEN",
+    "expected_layer": "standard",
+    "observed_codes": [
+      "E_PROFILE_OPEN"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 76882
+  },
+  {
+    "name": "mut_06_profile_open",
+    "path": "fixtures/mutated/mut_06_profile_open.dxf",
+    "source": "gen_06_a2_landscape",
+    "expected_code": "E_PROFILE_OPEN",
+    "expected_layer": "standard",
+    "observed_codes": [
+      "E_PROFILE_OPEN"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 78126
+  },
+  {
+    "name": "mut_07_profile_open",
+    "path": "fixtures/mutated/mut_07_profile_open.dxf",
+    "source": "gen_02_a4_landscape",
+    "expected_code": "E_PROFILE_OPEN",
+    "expected_layer": "standard",
+    "observed_codes": [
+      "E_PROFILE_OPEN"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 78163
+  },
+  {
+    "name": "mut_08_profile_open",
+    "path": "fixtures/mutated/mut_08_profile_open.dxf",
+    "source": "gen_09_a0_portrait",
+    "expected_code": "E_PROFILE_OPEN",
+    "expected_layer": "standard",
+    "observed_codes": [
+      "E_PROFILE_OPEN"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 78148
+  },
+  {
+    "name": "mut_09_sheet_size",
+    "path": "fixtures/mutated/mut_09_sheet_size.dxf",
+    "source": "gen_05_a2_portrait",
+    "expected_code": "E_SHEET_SIZE",
+    "expected_layer": "standard",
+    "observed_codes": [
+      "E_SHEET_SIZE"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 78222
+  },
+  {
+    "name": "mut_10_sheet_size",
+    "path": "fixtures/mutated/mut_10_sheet_size.dxf",
+    "source": "gen_08_a1_landscape",
+    "expected_code": "E_SHEET_SIZE",
+    "expected_layer": "standard",
+    "observed_codes": [
+      "E_SHEET_SIZE"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 76948
+  },
+  {
+    "name": "mut_11_sheet_size",
+    "path": "fixtures/mutated/mut_11_sheet_size.dxf",
+    "source": "gen_11_a3_tol_plus",
+    "expected_code": "E_SHEET_SIZE",
+    "expected_layer": "standard",
+    "observed_codes": [
+      "E_SHEET_SIZE"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 78168
+  },
+  {
+    "name": "mut_12_sheet_size",
+    "path": "fixtures/mutated/mut_12_sheet_size.dxf",
+    "source": "gen_13_a3_flag_off",
+    "expected_code": "E_SHEET_SIZE",
+    "expected_layer": "standard",
+    "observed_codes": [
+      "E_SHEET_SIZE"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 76927
+  },
+  {
+    "name": "mut_13_titleblock_gone",
+    "path": "fixtures/mutated/mut_13_titleblock_gone.dxf",
+    "source": "gen_01_a4_portrait",
+    "expected_code": "E_TITLE_BLOCK",
+    "expected_layer": "standard",
+    "observed_codes": [
+      "E_TITLE_BLOCK"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 77191
+  },
+  {
+    "name": "mut_14_titleblock_gone",
+    "path": "fixtures/mutated/mut_14_titleblock_gone.dxf",
+    "source": "gen_06_a2_landscape",
+    "expected_code": "E_TITLE_BLOCK",
+    "expected_layer": "standard",
+    "observed_codes": [
+      "E_TITLE_BLOCK"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 77153
+  },
+  {
+    "name": "mut_15_titleblock_blank",
+    "path": "fixtures/mutated/mut_15_titleblock_blank.dxf",
+    "source": "gen_04_a3_landscape",
+    "expected_code": "E_TITLE_BLOCK_BLANK",
+    "expected_layer": "standard",
+    "observed_codes": [
+      "E_TITLE_BLOCK_BLANK"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 76896
+  },
+  {
+    "name": "mut_16_titleblock_blank",
+    "path": "fixtures/mutated/mut_16_titleblock_blank.dxf",
+    "source": "gen_12_a4_tol_minus",
+    "expected_code": "E_TITLE_BLOCK_BLANK",
+    "expected_layer": "standard",
+    "observed_codes": [
+      "E_TITLE_BLOCK_BLANK"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 78237
+  },
+  {
+    "name": "mut_17_dim_wrong_layer",
+    "path": "fixtures/mutated/mut_17_dim_wrong_layer.dxf",
+    "source": "gen_03_a3_portrait",
+    "expected_code": "E_DIM_ON_WRONG_LAYER",
+    "expected_layer": "standard",
+    "observed_codes": [
+      "E_DIM_ON_WRONG_LAYER"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 76908
+  },
+  {
+    "name": "mut_18_dim_wrong_layer",
+    "path": "fixtures/mutated/mut_18_dim_wrong_layer.dxf",
+    "source": "gen_09_a0_portrait",
+    "expected_code": "E_DIM_ON_WRONG_LAYER",
+    "expected_layer": "standard",
+    "observed_codes": [
+      "E_DIM_ON_WRONG_LAYER"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 78201
+  },
+  {
+    "name": "mut_19_contour_on_zero",
+    "path": "fixtures/mutated/mut_19_contour_on_zero.dxf",
+    "source": "gen_05_a2_portrait",
+    "expected_code": "E_CONTOUR_ON_ZERO",
+    "expected_layer": "standard",
+    "observed_codes": [
+      "E_CONTOUR_ON_ZERO"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 78206
+  },
+  {
+    "name": "mut_20_contour_on_zero",
+    "path": "fixtures/mutated/mut_20_contour_on_zero.dxf",
+    "source": "gen_14_a2_tol_plus",
+    "expected_code": "E_CONTOUR_ON_ZERO",
+    "expected_layer": "standard",
+    "observed_codes": [
+      "E_CONTOUR_ON_ZERO"
+    ],
+    "intercepted": true,
+    "exact_match": true,
+    "size": 78190
+  }
+]

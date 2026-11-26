@@ -1,0 +1,10 @@
+defect_class,layer,n,G1_hits,G1_recall,G2_hits,G2_recall,G2.5_hits,G2.5_recall,G3_hits,G3_recall,LEGACY_COMPAT_hits,LEGACY_COMPAT_recall,G3_exact
+degenerate bbox,geometry,4,0,0.0,0,0.0,0,0.0,4,1.0,4,1.0,4
+dimension on wrong layer,standard,2,0,0.0,0,0.0,0,0.0,2,1.0,0,0.0,2
+missing title block,standard,4,0,0.0,0,0.0,0,0.0,4,1.0,0,0.0,4
+non-standard sheet,standard,4,0,0.0,0,0.0,0,0.0,4,1.0,0,0.0,4
+open profile,standard,4,0,0.0,0,0.0,0,0.0,4,1.0,0,0.0,4
+outline on layer 0,standard,2,0,0.0,0,0.0,0,0.0,2,1.0,0,0.0,2
+ALL (geometry),geometry,4,0,0.0,0,0.0,0,0.0,4,1.0,4,1.0,
+ALL (standard),standard,16,0,0.0,0,0.0,0,0.0,16,1.0,0,0.0,
+ALL,both,20,0,0.0,0,0.0,0,0.0,20,1.0,4,0.2,
