@@ -169,6 +169,91 @@ dimensions, two checked, is not a pass.
 the same multiple of the measured length (7x on eight of them), the view is scaled
 and the text states model values. A hand-edited text is a one-off wrong number.
 
+## Ablation: does each rule earn its place?
+
+Leave-one-out over the six rules, re-scoring all 50 tasks each time:
+
+```
+| removed rule          | recall | drop | false positives | delta |
+|-----------------------|--------|-----:|-----------------|------:|
+| (none - full set)     | 20/20  |      | 0/30            |       |
+| geo.bbox_degenerate   | 16/20  |   -4 | 0/30            |       |
+| gb.sheet_size         | 16/20  |   -4 | 0/30            |       |
+| gb.layer_taxonomy     | 16/20  |   -4 | 0/30            |       |
+| gb.dim_text           | 20/20  |    0 | 0/30            |       |
+| gb.title_block        | 16/20  |   -4 | 0/30            |       |
+| gb.closed_profile     | 16/20  |   -4 | 0/30            |       |
+```
+
+Five rules account for exactly the four samples their defect class covers, and no rule
+removal introduces a false positive — the rules are not papering over each other.
+
+**`gb.dim_text` shows zero, and that is worth stating rather than hiding.** The 20
+injected defects cover six classes and none of them is a dimension-text mismatch, so
+the rule has nothing to catch here. It is not idle in general: it is the rule that fires
+on the SolidWorks exports in `fixtures/real_sw/`, and it is what distinguishes a scaled
+sheet from a wrong number. The zero measures the benchmark's coverage, not the rule's
+value. Adding a seventh defect class would move this row, and that is the honest
+reading of a zero.
+
+## Baseline: AutoCAD CAD Standards (.dws)
+
+A CAD Standards file describes **named objects** — layers with their properties,
+linetypes, text styles, dimension styles — and checking a drawing against one compares
+those tables. Two things were established before measuring:
+
+* a `.dws` **cannot be produced over COM** on this install: `SaveAs` rejects every
+  format constant tried (0,1,2,3,4,5,6,8), and `_-CHECKSTANDARDS` runs without raising
+  but leaves no report file and exposes no standards member on `AcadDocument`;
+* so a live .dws check **cannot emit a machine-readable verdict** here at all —
+  `emits_machine_verdict` is `no` in every row of the CSV.
+
+The reach of the check is still measurable, and that is what the CSV records: the
+standard is the union of named objects across every compliant sample, then each of the
+20 defect samples is compared against it.
+
+```
+| samples checked | caught | missed |
+|-----------------|-------:|-------:|
+| 20              |      0 |     20 |
+```
+
+**Zero catches, and it is structural rather than incidental.** Every injected defect is
+geometric or attribute-level: a collapsed bbox, a dimension on the wrong layer, a
+deleted title block, a wrong sheet size, an open outline, an outline on layer `0`. A
+standards comparison sees none of them, because none of them introduces a new named
+object.
+
+An earlier version of this measurement reported 10 catches. All ten were the same false
+positive: the standard had been built from `fixtures/real/` only, while ten mutation
+sources come from `fixtures/gen/` and carry ezdxf's default style library (`细实线`,
+`CENTER2`, `LiberationMono`, `EZDXF` dim styles). Judging one generator's output against
+the other's standard is not a measurement of anything — the standard has to be the union
+over every compliant sample.
+
+## Baseline: vision-language model
+
+Rendered, not yet scored. `benchmarks/renders/` holds 65 PNGs at 150 dpi — every
+mutation, every AutoCAD export, every SolidWorks export and every generated drawing —
+drawn with layer colours, line weights scaled 1.4x, and the sheet border taken from each
+layout's declared paper size so a wrong sheet reads as a wrong sheet.
+
+A blank render would be 0% ink; these are not blank, and they are not monochrome:
+`PART-002.png` carries 214 distinct non-white colours across 0.4% of the pixels, while
+`mut_01_bbox_point.png` — the collapsed-bbox defect — collapses to 4 colours and 0.2%
+ink, which is exactly what that defect should look like.
+
+`benchmarks/vlm_requests.jsonl` holds 65 requests with a fixed prompt asking for five
+judgements plus, for the closure case, the coordinates of the loose ends. With a key
+present `benchmarks/eval_vlm.py` calls the model and writes `results/baseline_vlm.csv`;
+without one, answers from any client can be dropped into `vlm_answers.jsonl` and scored
+with `scripts/parse_vlm_results.py`.
+
+**No row is fabricated.** `results/baseline_vlm_PENDING.md` states what is ready and
+what a result would mean, including the prediction that `E_BBOX_DEGENERATE` should be
+visible to a model while `E_CONTOUR_ON_ZERO` — a colour change — is the interesting
+open question.
+
 ## Result tables and how to reproduce them
 
 | file | what it answers | built by |
@@ -177,6 +262,9 @@ and the text states model values. A hand-edited text is a one-off wrong number.
 | `results/false_positives.csv` | per arm, false positives on the 30 compliant samples with the CP 95% upper bound | `run_eval.py` |
 | `results/latency.csv` | per arm p50/p95 in ms over all 50 tasks | `run_eval.py` |
 | `results/cross_ecosystem.csv` | AutoCAD vs SolidWorks under the same gate | `run_eval.py` |
+| `results/ablation_loo.csv` | per rule, what recall is lost when it is dropped | `run_eval.py` |
+| `results/baseline_dws.csv` | what a CAD Standards (.dws) comparison catches, per sample | `scripts/eval_autocad_dws.py` |
+| `results/baseline_vlm.csv` | vision-model verdicts, once a key is supplied | `benchmarks/eval_vlm.py` |
 | `tasks.json` | the manifest: every sample, its kind, group, profile, expected code | `run_eval.py` |
 | `mutations.json` | per mutation: expected code, expected layer, profile | `mutate.py` |
 
@@ -189,6 +277,14 @@ python scripts/batch_export_sw.py --input tmp_sw_parts \
 python benchmarks/mutate.py               # 20 mutations, 10 real + 10 gen
 python benchmarks/run_eval.py             # the four tables + tasks.json
 python benchmarks/validate_real.py        # compliant set on its own
+
+# baselines
+python scripts/render_dxf_png.py          # 65 PNGs into benchmarks/renders/
+python scripts/eval_autocad_dws.py        # .dws reach, results/baseline_dws.csv
+python benchmarks/eval_vlm.py             # needs a key; else writes the request list
+
+# tests
+python -m pytest tests/ -q                # 74 tests
 ```
 
 ## Reporting rules

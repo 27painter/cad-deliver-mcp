@@ -273,8 +273,30 @@ def test_pdf_checks_in_memory():
 
 
 def test_no_cad_libraries_imported():
-    for lib in ("ezdxf", "pymupdf", "fitz"):
-        assert lib not in sys.modules, f"{lib} must not be imported during in-memory geometry tests"
+    """The geometry layer must not import a CAD library.
+
+    Checked against the source rather than `sys.modules`. Under the script runner this
+    file is a process on its own, so `"ezdxf" not in sys.modules` happened to hold;
+    under pytest every test module shares one interpreter, and `test_parsers.py` imports
+    ezdxf legitimately. The architectural claim is about the module's imports, so that
+    is what is asserted.
+    """
+    import ast
+
+    banned = {"ezdxf", "fitz", "pymupdf", "win32com", "comtypes"}
+    geometry = Path(__file__).resolve().parent.parent / "src" / "cad_deliver" / "geometry"
+    offenders: list[str] = []
+    for path in sorted(geometry.rglob("*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    if alias.name.split(".")[0] in banned:
+                        offenders.append(f"{path.name} imports {alias.name}")
+            elif isinstance(node, ast.ImportFrom) and node.module:
+                if node.module.split(".")[0] in banned:
+                    offenders.append(f"{path.name} imports from {node.module}")
+    assert not offenders, f"geometry layer must stay CAD-library free: {offenders}"
 
 
 if __name__ == "__main__":

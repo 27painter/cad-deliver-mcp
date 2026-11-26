@@ -205,9 +205,17 @@ G1, G2 and G2.5 catch none of the standard-level defects (0/16); LEGACY_COMPAT 0
 Latency per call, p50/p95 ms: G3 12.69 / 54.18, G2.5 10.19 / 47.25.
 ```
 
-The false-positive bound is a Clopper-Pearson one-sided 95% upper limit computed in
-pure Python — 0/30 gives 9.5%. Quoting "0% false positives" would be a claim the
-sample cannot support.
+Both rates carry a bound, in both directions, computed the same way in pure Python:
+
+| quantity | k/n | point estimate | CP 95% one-sided bound |
+|---|---|---|---|
+| recall | 20/20 | 100.0% | **86.1% lower** |
+| false positives | 0/30 | 0.0% | **9.5% upper** |
+
+Quoting "100% recall" or "0% false positives" without them would be a claim the sample
+cannot support. 20 successes out of 20 is consistent with a true rate as low as 86%;
+0 out of 30 is consistent with a true rate as high as 9.5%. Those are the numbers a
+reviewer can argue with, which is the point of printing them.
 
 ### The ecosystem contrast is the interesting part
 
@@ -252,13 +260,56 @@ view is scaled and the text states model values. A hand-edited text is a one-off
 wrong number. A single mismatch is only excused when it lands on a standard drawing
 scale, because one reading cannot establish a ratio.
 
+### Does each rule earn its place?
+
+Leave-one-out over the six rules, re-scoring all 50 tasks each time:
+
+| removed rule | recall | drop | false positives |
+|---|---|---:|---|
+| (none — full set) | 20/20 | | 0/30 |
+| `geo.bbox_degenerate` | 16/20 | −4 | 0/30 |
+| `gb.sheet_size` | 16/20 | −4 | 0/30 |
+| `gb.layer_taxonomy` | 16/20 | −4 | 0/30 |
+| `gb.dim_text` | 20/20 | **0** | 0/30 |
+| `gb.title_block` | 16/20 | −4 | 0/30 |
+| `gb.closed_profile` | 16/20 | −4 | 0/30 |
+
+Five rules each account for exactly the four samples of their defect class, and no
+removal introduces a false positive — the rules do not paper over each other.
+
+`gb.dim_text` shows zero because the 20 injected defects cover six classes and none is
+a dimension-text mismatch. It is not idle in general: it is what fires on the SolidWorks
+exports and what separates a scaled sheet from a wrong number. The zero measures the
+benchmark's coverage, not the rule.
+
+### Two baselines, measured rather than asserted
+
+**AutoCAD CAD Standards (`.dws`).** A standards file compares *named objects* — layer
+names and properties, linetypes, text styles, dimension styles. It caught **0 of 20**
+injected defects, which is structural: every one is geometric or attribute-level, so no
+sample introduces a new named object. It also cannot be automated end to end here —
+`SaveAs` refuses every `.dws` format constant and `_-CHECKSTANDARDS` leaves no
+machine-readable verdict — so the CSV records instrument reach, not a live run.
+
+**Vision-language model.** 65 drawings rendered at 150 dpi with layer colours, 1.4x line
+weights and the sheet border drawn from each layout's declared paper size. Prepared and
+not scored: no multimodal API key on this machine, so `results/baseline_vlm.csv` does not
+exist and no row was invented. `benchmarks/vlm_requests.jsonl` holds 65 requests with a
+fixed prompt; `benchmarks/eval_vlm.py` runs them when a key is present, and
+`scripts/parse_vlm_results.py` scores answers from any client. See
+`benchmarks/results/baseline_vlm_PENDING.md`.
+
 Reproduce with:
 
 ```bash
-python scripts/gen_acad_fixtures.py      # 15 AutoCAD drawings via COM + Document.Export
+python scripts/gen_acad_fixtures.py       # 15 AutoCAD drawings via COM + Document.Export
 python scripts/batch_export_sw.py --input tmp_sw_parts --output benchmarks/fixtures/real_sw
-python benchmarks/mutate.py              # 10 real + 10 generated, 20 defects
-python benchmarks/run_eval.py            # three CSVs, tasks.json, cross_ecosystem.csv
+python benchmarks/mutate.py               # 10 real + 10 generated, 20 defects
+python benchmarks/run_eval.py             # tables, tasks.json, ablation_loo.csv
+python scripts/render_dxf_png.py          # 65 PNGs into benchmarks/renders/
+python scripts/eval_autocad_dws.py        # .dws reach, baseline_dws.csv
+python benchmarks/eval_vlm.py             # needs a key; otherwise writes the request list
+python -m pytest tests/ -q                # 74 tests
 ```
 
 No exported DXF is post-processed by this project. What lands in `fixtures/` is what

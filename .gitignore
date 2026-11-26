@@ -49,3 +49,15 @@ _tbt.dxf
 # one-off COM probes
 _layer_test.dxf
 _layer_test.py
+
+# Rendered PNGs: rebuilt by scripts/render_dxf_png.py
+benchmarks/renders/
+# VLM answers collected offline before scoring
+benchmarks/vlm_answers.jsonl
+# artefacts written into the repo root by tests/test_parsers.py
+a3.pdf
+blank.dwg
+corrupt.dxf
+corrupt.pdf
+sample.dxf
+two_page.pdf

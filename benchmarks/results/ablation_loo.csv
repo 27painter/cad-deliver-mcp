@@ -1,0 +1,8 @@
+removed_rule,recall,recall_rate,recall_drop,false_positives,fp_rate,fp_delta
+(none - full set),20/20,1.0000,0,0/30,0.0000,0
+geo.bbox_degenerate,16/20,0.8000,4,0/30,0.0000,0
+gb.sheet_size,16/20,0.8000,4,0/30,0.0000,0
+gb.layer_taxonomy,16/20,0.8000,4,0/30,0.0000,0
+gb.dim_text,20/20,1.0000,0,0/30,0.0000,0
+gb.title_block,16/20,0.8000,4,0/30,0.0000,0
+gb.closed_profile,16/20,0.8000,4,0/30,0.0000,0

@@ -77,6 +77,36 @@ def clopper_pearson_upper(k: int, n: int, alpha: float = 0.05) -> float:
     return (lo + hi) / 2.0
 
 
+def clopper_pearson_lower(k: int, n: int, alpha: float = 0.05) -> float:
+    """One-sided lower bound on the true rate, given k events in n trials.
+
+    Mirror of the upper bound: solved from P(X >= k | p) = alpha. With k = n = 20
+    the closed form is `alpha ** (1/n)` = 0.861, which is the number to quote next
+    to "20/20" — a point estimate of 100% says nothing about how much the sample
+    supports.
+
+    Pure Python and no scipy, for the same reason as the upper bound.
+    """
+    if n <= 0:
+        return 0.0
+    if k <= 0:
+        return 0.0
+    if k >= n:
+        return alpha ** (1.0 / n)
+    lo, hi = 0.0, 1.0
+    for _ in range(200):
+        mid = (lo + hi) / 2.0
+        # P(X >= k | mid)
+        tail = sum(
+            math.comb(n, i) * mid**i * (1.0 - mid) ** (n - i) for i in range(k, n + 1)
+        )
+        if tail > alpha:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2.0
+
+
 def percentile(values: list[float], q: float) -> float:
     if not values:
         return 0.0
@@ -274,6 +304,115 @@ def build_tasks() -> dict:
 
 # ------------------------------------------------------------------ the run
 
+
+# --------------------------------------------------------------- ablation
+
+
+ABLATION_RULES = (
+    "geo.bbox_degenerate",
+    "gb.sheet_size",
+    "gb.layer_taxonomy",
+    "gb.dim_text",
+    "gb.title_block",
+    "gb.closed_profile",
+)
+
+
+def _score_tasks(tasks: list[dict]) -> tuple[int, int, int, int]:
+    """Return (recall_hits, recall_n, fp_count, compliant_n) for one configuration."""
+    from cad_deliver.pipeline import verify_file
+
+    hits = 0
+    defective = 0
+    fp = 0
+    compliant = 0
+    for task in tasks:
+        path = ROOT / task["path"]
+        verdict = verify_file(path, task.get("profile", PROFILE)).verdict.value
+        if task["kind"] == "defective":
+            defective += 1
+            if verdict != "PASS":
+                hits += 1
+        elif task["kind"] == "compliant":
+            compliant += 1
+            if verdict != "PASS":
+                fp += 1
+    return hits, defective, fp, compliant
+
+
+def run_ablation() -> list[dict]:
+    """Drop one rule at a time and re-score the same 50 tasks.
+
+    This is the honest way to ask whether a rule earns its place: if the recall
+    does not move when it is removed, it is not catching anything the others miss.
+    """
+    from cad_deliver.rules import registry
+
+    plan = build_tasks()
+    tasks = [t for t in plan["tasks"] if t["kind"] in ("defective", "compliant")]
+
+    saved_profiles = {name: list(ids) for name, ids in registry.PROFILES.items()}
+    try:
+        hits, defective, fp, compliant = _score_tasks(tasks)
+        rows = [
+            {
+                "removed_rule": "(none - full set)",
+                "recall": f"{hits}/{defective}",
+                "recall_rate": hits / defective if defective else 0.0,
+                "recall_drop": 0,
+                "false_positives": f"{fp}/{compliant}",
+                "fp_rate": fp / compliant if compliant else 0.0,
+                "fp_delta": 0,
+            }
+        ]
+        base_hits, base_fp = hits, fp
+
+        for rule_id in ABLATION_RULES:
+            for name in registry.PROFILES:
+                if rule_id in registry.PROFILES[name]:
+                    registry.PROFILES[name] = [
+                        r for r in registry.PROFILES[name] if r != rule_id
+                    ]
+            h, d, f, c = _score_tasks(tasks)
+            rows.append(
+                {
+                    "removed_rule": rule_id,
+                    "recall": f"{h}/{d}",
+                    "recall_rate": h / d if d else 0.0,
+                    "recall_drop": base_hits - h,
+                    "false_positives": f"{f}/{c}",
+                    "fp_rate": f / c if c else 0.0,
+                    "fp_delta": f - base_fp,
+                }
+            )
+            # restore before the next iteration
+            for name, ids in saved_profiles.items():
+                registry.PROFILES[name] = list(ids)
+        return rows
+    finally:
+        for name, ids in saved_profiles.items():
+            registry.PROFILES[name] = list(ids)
+
+
+def write_ablation(rows: list[dict]) -> Path:
+    out = RESULTS / "ablation_loo.csv"
+    columns = [
+        "removed_rule",
+        "recall",
+        "recall_rate",
+        "recall_drop",
+        "false_positives",
+        "fp_rate",
+        "fp_delta",
+    ]
+    with open(out, "w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=columns)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({k: (f"{v:.4f}" if isinstance(v, float) else v) for k, v in row.items()})
+    return out
+
+
 def main() -> int:
     RESULTS.mkdir(parents=True, exist_ok=True)
     plan = build_tasks()
@@ -431,14 +570,34 @@ def main() -> int:
     print()
     print("## Recall by defect class")
     print()
-    print("| defect class | layer | n | G1 | G2 | G2.5 | G3 | LEGACY |")
-    print("|---|---|---:|---:|---:|---:|---:|---:|")
+    print("| defect class | layer | n | G1 | G2 | G2.5 | G3 | LEGACY | G3 CP 95% lower |")
+    print("|---|---|---:|---:|---:|---:|---:|---:|---:|")
     for row in recall_rows:
+        g3_hits = row["G3_hits"]
+        lower = clopper_pearson_lower(g3_hits, row["n"])
         print(
             f"| {row['defect_class']} | {row['layer']} | {row['n']} | "
             + " | ".join(f"{row[f'{arm}_hits']}/{row['n']}" for arm in (*ARMS, "LEGACY_COMPAT"))
-            + " |"
+            + f" | {lower:.1%} |"
         )
+
+    # The headline pair. A point estimate of 100% recall says nothing about how much
+    # 20 samples support; a bare 0% false-positive rate says nothing either. Quoting
+    # both bounds is what makes the two numbers falsifiable.
+    total_row = next((row for row in recall_rows if row["defect_class"] == "ALL"), None)
+    total_hits = total_row["G3_hits"] if total_row else 0
+    total_n = total_row["n"] if total_row else 0
+    compliant_n = fp_rows[0]["n_compliant"] if fp_rows else 0
+    print()
+    print("### Statistical closure")
+    print()
+    print(f"* recall {total_hits}/{total_n}: point estimate "
+          f"{total_hits / total_n:.1%}, CP 95% one-sided **lower** bound "
+          f"{clopper_pearson_lower(total_hits, total_n):.1%}")
+    print(f"* false positives 0/{compliant_n}: point estimate 0.0%, CP 95% one-sided "
+          f"**upper** bound {clopper_pearson_upper(0, compliant_n):.1%}")
+    print("* the two bounds are computed the same way, in pure Python, so a reader can "
+          "reproduce both")
 
     print()
     print("## False positives on compliant samples")
@@ -502,6 +661,36 @@ def main() -> int:
                 f"{tally.get('PASS', 0)},{tally.get('FAIL', 0)},{tally.get('UNKNOWN', 0)}\n",
                 encoding="utf-8",
             )
+
+    # ---- leave-one-out ablation ------------------------------------
+    print()
+    print("## Leave-one-out ablation")
+    print()
+    ablation_rows = run_ablation()
+    ablation_path = write_ablation(ablation_rows)
+    print("| removed rule | recall | drop | false positives | delta |")
+    print("|---|---|---:|---|---:|")
+    for row in ablation_rows:
+        drop = "" if row["recall_drop"] == 0 else f"-{row['recall_drop']}"
+        delta = "" if row["fp_delta"] == 0 else f"+{row['fp_delta']}"
+        print(
+            f"| {row['removed_rule']} | {row['recall']} | {drop} | "
+            f"{row['false_positives']} | {delta} |"
+        )
+    idle = [row["removed_rule"] for row in ablation_rows if row["recall_drop"] == 0 and row["removed_rule"] != "(none - full set)"]
+    if idle:
+        print()
+        print(
+            "A rule whose removal costs nothing is not necessarily useless — it may simply "
+            "have nothing to catch here. "
+            + ", ".join(idle)
+            + " has no corresponding defect class in this 20-sample set: the six injected "
+            "classes are bbox, wrong-layer dimension, missing title block, bad sheet, open "
+            "profile and outline-on-zero. Adding a dimension-text sample would move this row, "
+            "and that gap is the honest reading of a zero."
+        )
+    print()
+    print(f"ablation written to {ablation_path.relative_to(ROOT)}")
 
     print()
     print(f"results: {RESULTS}")
