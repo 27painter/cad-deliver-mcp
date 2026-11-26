@@ -154,51 +154,77 @@ large sheets (A0) parse slower and have more entities to classify.
 ## Closed-loop repair experiment (`agent/`)
 
 Static metrics show the gate blocks. They do not show whether a model can act on
-what it reports. `agent/` runs that test: one sample per defect class, two arms,
-up to three repair attempts each.
+what it reports. `agent/` runs that test in two regimes with **identical ezdxf
+read/write rights in both arms** — the only difference is what the gate tells them.
 
-| arm | what the agent is told |
+| arm | what the agent is given |
 |---|---|
 | A (control) | the machine code only — `FAIL: E_PROFILE_OPEN` |
-| B (treatment) | the full finding: code, severity, detail, evidence with coordinates, and a fix instruction |
+| B (treatment) | the full finding: code, severity, detail, evidence with coordinates and handles, plus a fix instruction |
+
+| regime | drawings | defects |
+|---|---|---|
+| simple | 8 entities, one defect each | a 3-vertex polyline, a mislayered dimension, a 400x280 sheet, a deleted INSERT, a collapsed bbox, an outline on layer 0 |
+| complex | **516 entities** each | one hidden defect, or several: a 0.02 mm gap in one of 200 outline segments, 2 of 45 dimensions on the wrong layer, a text override 0.3% off, 1 blank required field among 12 title-block attributes |
+
+Dense hatching, 150 construction lines, 40 centre lines, 60 hidden lines and 45
+dimensions make "look at the file and find it" expensive. That was the hypothesis.
 
 ```bash
-python benchmarks/agent/verify_code.py <file.dxf>   # what arm A may run
-python benchmarks/agent/verify_full.py <file.dxf>   # what arm B may run
-python benchmarks/agent/plot.py                     # rebuilds repair_chart.svg
+python benchmarks/agent/complex_fixtures.py   # writes the 516-entity samples
+python benchmarks/agent/verify_code.py <f>    # what arm A may run
+python benchmarks/agent/verify_full.py <f>    # what arm B may run
+python benchmarks/agent/collect.py            # comparison tables
+python benchmarks/agent/plot.py               # rebuilds repair_chart.svg
 ```
 
-### Result: no difference
+### Result: complexity bought no separation
 
 ```
-arm   Pass@1   Pass@3
-A       6/6      6/6
-B       6/6      6/6
+| regime   | arm |  n |  Pass@1 |  Pass@3 | mean calls | mean sec |
+|----------|-----|----|---------|---------|------------|----------|
+| simple   | A   |  6 | 6/ 6    | 6/ 6    |        9.6 |       53 |
+| simple   | B   |  6 | 5/ 6    | 6/ 6    |        8.2 |       63 |
+| complex  | A   |  6 | 6/ 6    | 6/ 6    |        9.7 |       46 |
+| complex  | B   |  6 | 6/ 6    | 6/ 6    |        7.5 |       40 |
+
+cost delta (B vs A): simple  tool calls -15%  wall time +17%
+                     complex tool calls -22%  wall time -11%
 ```
 
-Every sample was repaired on the first attempt, in both arms. **The fix_plan did
-not change the outcome.** Reported as measured, because the reason is instructive.
+Pass@3 is 6/6 in **all four cells**. Pass@1 differs only once, and against the
+treatment arm: the B agent on `mut_13` inserted the title block on its first
+attempt but left the attributes empty, so it needed a second round.
 
-### Why, and why this design cannot measure the thing it was meant to
+### Why raising entity count did not help
 
-The control arm could read the DXF. Every A agent opened the file with ezdxf,
-walked the entity table, and located the defect without the gate's evidence — a
-three-vertex polyline, a layer attribute, a paper size. Once a model can read the
-artefact, a fix instruction is information it can obtain by a longer route for the
-same cost. Six locally-visible defects are not enough to make that route expensive.
+The hypothesis was wrong in a specific, useful way. **An agent does not look at
+516 entities; it writes a script over them.** In the complex profile case the
+control agent clustered 450 line endpoints at the join tolerance, isolated the
+only component with two odd-degree nodes, and found the 0.02 mm gap — 14 tool
+calls. Entity count raises the cost of eyeballing, not the cost of programming.
 
-So the experiment shows the gate is *actionable* — models do repair drawings from
-its output, first time, in both arms — but it does not isolate the value of the
-detail. Claiming otherwise from this table would be wrong.
+What the fix_plan did buy is visible in the cost columns, and only in the complex
+regime: 22% fewer tool calls, 11% less wall time. In the simple regime the
+treatment arm was *slower*, because one B agent chose to reconstruct the whole
+geometry from cached dimension blocks (158 s) while the A agent simply restored
+coordinates from a sibling fixture.
 
-To measure it, the gap has to be real:
+### What would actually separate the arms
 
-* deny the control arm file reads, so the code is genuinely all it has;
-* raise complexity until locating a dangling end by inspection costs many steps —
-  hundreds of entities, not eight;
-* measure cost as well as success (tool calls, tokens, wall time): the B agents
-  were visibly more direct even when both arms succeeded;
-* use defects that are not locally visible, such as an outline that is only open
-  after layer filtering, or a dimension override that disagrees by 0.3%.
+The information gap has to be something a script cannot recover on its own:
 
-`results.json` carries the per-sample notes and the passages above verbatim.
+* **semantic** facts — which layer name is correct for this shop, whether an
+  apparent break is a defect or a draughting intent;
+* **cross-file** facts — whether this drawing matches the part it is meant to
+  describe;
+* **latent** facts — a defect only visible after the gate's own analysis, such as
+  an outline that is topologically open only after layer filtering.
+
+Raising entity count is not one of them. That is the honest finding, and it is
+cheaper to state than to be told.
+
+`repair_all.csv` has per-sample rows; `complex_repair_results.csv` the summary;
+`results.json` the first round's per-sample notes. `tokens` is empty everywhere
+because this harness cannot observe it, and a fabricated number would be worse
+than a blank.

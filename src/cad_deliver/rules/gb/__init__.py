@@ -10,6 +10,6 @@ Extensible hooks, not implemented yet and listed in the architecture figure:
     gb.typography      GB/T 14691  text height and font class
 """
 
-from . import closed_profile, layer_taxonomy, sheet_size, title_block  # noqa: F401
+from . import closed_profile, dim_text, layer_taxonomy, sheet_size, title_block  # noqa: F401
 
-__all__ = ["closed_profile", "layer_taxonomy", "sheet_size", "title_block"]
+__all__ = ["closed_profile", "dim_text", "layer_taxonomy", "sheet_size", "title_block"]

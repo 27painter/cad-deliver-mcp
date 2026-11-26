@@ -1,0 +1,5 @@
+regime,arm,n,pass_at_1,pass_at_3,mean_tool_calls,mean_elapsed_s,tokens,cost_cases
+simple,A,6,6,6,9.6,53.4,,5
+simple,B,6,5,6,8.2,62.6,,5
+complex,A,6,6,6,9.67,45.5,,6
+complex,B,6,6,6,7.5,40.5,,6

@@ -1,0 +1,314 @@
+{
+  "rows": [
+    {
+      "regime": "simple",
+      "arm": "A",
+      "sample": "mut_01_bbox_point",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 15,
+      "elapsed_s": 82,
+      "tokens": ""
+    },
+    {
+      "regime": "simple",
+      "arm": "A",
+      "sample": "mut_05_profile_open",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 5,
+      "elapsed_s": 26,
+      "tokens": ""
+    },
+    {
+      "regime": "simple",
+      "arm": "A",
+      "sample": "mut_09_sheet_size",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": "",
+      "tool_calls": "",
+      "elapsed_s": "",
+      "tokens": ""
+    },
+    {
+      "regime": "simple",
+      "arm": "A",
+      "sample": "mut_13_titleblock_gone",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 10,
+      "elapsed_s": 71,
+      "tokens": ""
+    },
+    {
+      "regime": "simple",
+      "arm": "A",
+      "sample": "mut_17_dim_wrong_layer",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 9,
+      "elapsed_s": 45,
+      "tokens": ""
+    },
+    {
+      "regime": "simple",
+      "arm": "A",
+      "sample": "mut_19_contour_on_zero",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 9,
+      "elapsed_s": 43,
+      "tokens": ""
+    },
+    {
+      "regime": "simple",
+      "arm": "B",
+      "sample": "mut_01_bbox_point",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 16,
+      "elapsed_s": 158,
+      "tokens": ""
+    },
+    {
+      "regime": "simple",
+      "arm": "B",
+      "sample": "mut_05_profile_open",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 6,
+      "elapsed_s": 33,
+      "tokens": ""
+    },
+    {
+      "regime": "simple",
+      "arm": "B",
+      "sample": "mut_09_sheet_size",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 7,
+      "elapsed_s": 37,
+      "tokens": ""
+    },
+    {
+      "regime": "simple",
+      "arm": "B",
+      "sample": "mut_13_titleblock_gone",
+      "passed_at_1": false,
+      "passed_at_3": true,
+      "rounds": 2,
+      "tool_calls": 7,
+      "elapsed_s": 66,
+      "tokens": ""
+    },
+    {
+      "regime": "simple",
+      "arm": "B",
+      "sample": "mut_17_dim_wrong_layer",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 5,
+      "elapsed_s": 19,
+      "tokens": ""
+    },
+    {
+      "regime": "simple",
+      "arm": "B",
+      "sample": "mut_19_contour_on_zero",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": "",
+      "tool_calls": "",
+      "elapsed_s": "",
+      "tokens": ""
+    },
+    {
+      "regime": "complex",
+      "arm": "A",
+      "sample": "complex_01_profile_open",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 14,
+      "elapsed_s": 55,
+      "tokens": ""
+    },
+    {
+      "regime": "complex",
+      "arm": "A",
+      "sample": "complex_02_dim_layer",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 5,
+      "elapsed_s": 18,
+      "tokens": ""
+    },
+    {
+      "regime": "complex",
+      "arm": "A",
+      "sample": "complex_03_dim_text",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 10,
+      "elapsed_s": 40,
+      "tokens": ""
+    },
+    {
+      "regime": "complex",
+      "arm": "A",
+      "sample": "complex_04_title_blank",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 6,
+      "elapsed_s": 41,
+      "tokens": ""
+    },
+    {
+      "regime": "complex",
+      "arm": "A",
+      "sample": "complex_05_two_defects",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 11,
+      "elapsed_s": 45,
+      "tokens": ""
+    },
+    {
+      "regime": "complex",
+      "arm": "A",
+      "sample": "complex_06_all_four",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 12,
+      "elapsed_s": 74,
+      "tokens": ""
+    },
+    {
+      "regime": "complex",
+      "arm": "B",
+      "sample": "complex_01_profile_open",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 9,
+      "elapsed_s": 58,
+      "tokens": ""
+    },
+    {
+      "regime": "complex",
+      "arm": "B",
+      "sample": "complex_02_dim_layer",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 5,
+      "elapsed_s": 19,
+      "tokens": ""
+    },
+    {
+      "regime": "complex",
+      "arm": "B",
+      "sample": "complex_03_dim_text",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 6,
+      "elapsed_s": 29,
+      "tokens": ""
+    },
+    {
+      "regime": "complex",
+      "arm": "B",
+      "sample": "complex_04_title_blank",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 6,
+      "elapsed_s": 27,
+      "tokens": ""
+    },
+    {
+      "regime": "complex",
+      "arm": "B",
+      "sample": "complex_05_two_defects",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 9,
+      "elapsed_s": 52,
+      "tokens": ""
+    },
+    {
+      "regime": "complex",
+      "arm": "B",
+      "sample": "complex_06_all_four",
+      "passed_at_1": true,
+      "passed_at_3": true,
+      "rounds": 1,
+      "tool_calls": 10,
+      "elapsed_s": 58,
+      "tokens": ""
+    }
+  ],
+  "summary": [
+    {
+      "regime": "simple",
+      "arm": "A",
+      "n": 6,
+      "pass_at_1": 6,
+      "pass_at_3": 6,
+      "mean_tool_calls": 9.6,
+      "mean_elapsed_s": 53.4,
+      "tokens": "",
+      "cost_cases": 5
+    },
+    {
+      "regime": "simple",
+      "arm": "B",
+      "n": 6,
+      "pass_at_1": 5,
+      "pass_at_3": 6,
+      "mean_tool_calls": 8.2,
+      "mean_elapsed_s": 62.6,
+      "tokens": "",
+      "cost_cases": 5
+    },
+    {
+      "regime": "complex",
+      "arm": "A",
+      "n": 6,
+      "pass_at_1": 6,
+      "pass_at_3": 6,
+      "mean_tool_calls": 9.67,
+      "mean_elapsed_s": 45.5,
+      "tokens": "",
+      "cost_cases": 6
+    },
+    {
+      "regime": "complex",
+      "arm": "B",
+      "n": 6,
+      "pass_at_1": 6,
+      "pass_at_3": 6,
+      "mean_tool_calls": 7.5,
+      "mean_elapsed_s": 40.5,
+      "tokens": "",
+      "cost_cases": 6
+    }
+  ]
+}

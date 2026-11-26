@@ -40,6 +40,7 @@ class Code(str, Enum):
 
     # --- geometry integrity ----------------------------------------------
     BBOX_DEGENERATE = "E_BBOX_DEGENERATE"          # geometry collapsed to a point or a line
+    DIM_TEXT_MISMATCH = "E_DIM_TEXT_MISMATCH"      # dimension text disagrees with the geometry
 
 
 # The identifiers a rule emits must be these values, not free strings, so a

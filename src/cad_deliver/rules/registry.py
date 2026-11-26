@@ -37,6 +37,7 @@ PROFILES: dict[str, list[str]] = {
         "gb.sheet_size",
         "gb.layer_taxonomy",
         "gb.closed_profile",
+        "gb.dim_text",
         "gb.title_block",
     ],
     # Same sheet rule, different standard: proof that a rule is reusable and
@@ -76,6 +77,8 @@ SEVERITY_PROFILES: dict[str, dict[str, Severity]] = {
         Code.NO_CONTOUR_LAYER.value: Severity.WARNING,
         # A drawing with no extent plots blank; nothing else on it matters.
         Code.BBOX_DEGENERATE.value: Severity.ERROR,
+        # A dimension naming a number the part does not have is worse than none.
+        Code.DIM_TEXT_MISMATCH.value: Severity.ERROR,
         # An outline that does not close is a plotting defect a shop rejects.
         Code.PROFILE_OPEN.value: Severity.ERROR,
         Code.TITLE_BLOCK_NO_ATTR.value: Severity.WARNING,
