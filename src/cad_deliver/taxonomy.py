@@ -200,3 +200,31 @@ def linetype_matches(linetype: str, role: LayerRole) -> bool:
     if role is LayerRole.HIDDEN_DASHED:
         return any(fragment in folded for fragment in HIDDEN_LINETYPES)
     return True
+# ------------------------------------------------ outline membership
+
+# Roles that never carry the visible outline. A centre line crossing the part is
+# not part of its contour, and neither is hatching, a dimension line, a note or
+# the frame. Counting them as outline geometry dilutes any share-of-outline
+# measurement — which is exactly what made `E_CONTOUR_ON_ZERO` under-report.
+NON_OUTLINE_ROLES = frozenset(
+    {
+        LayerRole.CENTERLINE,
+        LayerRole.HIDDEN_DASHED,
+        LayerRole.THIN_AUX,
+        LayerRole.DIMENSION,
+        LayerRole.ANNOTATION_TEXT,
+        LayerRole.FRAME_TITLE,
+    }
+)
+
+
+def is_outline_layer(name: str) -> bool:
+    """True when geometry on this layer can be part of the visible outline.
+
+    Layer 0 is included on purpose: an outline mistakenly left there is a
+    finding in its own right (`E_CONTOUR_ON_ZERO`), not a reason to ignore the
+    geometry when deciding whether a profile closes.
+    """
+    if is_structural(name):
+        return True
+    return classify(name).role not in NON_OUTLINE_ROLES

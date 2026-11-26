@@ -28,7 +28,7 @@ from .registry import (
 from .taxonomy import ALIASES, ROLE_PRIORITY, LayerRole, Match, classify, normalise
 
 # Importing the subpackage is what runs the @register_rule decorators.
-from . import gb  # noqa: F401,E402  (after the names it depends on)
+from . import bbox, gb  # noqa: F401,E402  (after the names it depends on)
 
 __all__ = [
     "ALIASES",

@@ -29,21 +29,13 @@ from dataclasses import dataclass, field
 import math
 
 from ..models import ParsedDrawing
-from ..taxonomy import LayerRole, classify, is_structural
+from ..taxonomy import is_outline_layer
 
 JOIN_TOLERANCE_MM = 0.01
 
-# A layer carrying any of these roles is not part of the visible outline.
-NON_OUTLINE_ROLES = frozenset(
-    {
-        LayerRole.CENTERLINE,
-        LayerRole.HIDDEN_DASHED,
-        LayerRole.THIN_AUX,
-        LayerRole.DIMENSION,
-        LayerRole.ANNOTATION_TEXT,
-        LayerRole.FRAME_TITLE,
-    }
-)
+# Re-exported: the membership test is domain knowledge, so it lives in
+# cad_deliver.taxonomy where the rule layer can use the same definition.
+# `test_topology.py` still imports it from here.
 
 # Entity kinds that never take part in closure analysis.
 IGNORED_KINDS = frozenset({"CIRCLE", "POINT", "SOLID", "HATCH", "DIMENSION"})
@@ -107,15 +99,6 @@ class Topology:
         return not self.open
 
 
-def is_outline_layer(layer: str) -> bool:
-    """True when a layer can carry the visible outline.
-
-    `0` is included: an outline mistakenly left on layer 0 is a different
-    finding (E_CONTOUR_ON_ZERO), not a reason to ignore its geometry here.
-    """
-    if is_structural(layer):
-        return True
-    return classify(layer).role not in NON_OUTLINE_ROLES
 
 
 def analyse(drawing: ParsedDrawing, tolerance: float = JOIN_TOLERANCE_MM) -> Topology:

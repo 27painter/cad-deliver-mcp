@@ -33,6 +33,7 @@ PROFILES: dict[str, list[str]] = {
     "GEOMETRY_ONLY": [],
     # The Tier-1 drafting baseline: sheet size, layer taxonomy, title block.
     "GB_T_TIER1": [
+        "geo.bbox_degenerate",
         "gb.sheet_size",
         "gb.layer_taxonomy",
         "gb.closed_profile",
@@ -73,6 +74,8 @@ SEVERITY_PROFILES: dict[str, dict[str, Severity]] = {
         Code.LAYER_AMBIGUOUS.value: Severity.WARNING,
         Code.CENTER_LINETYPE.value: Severity.WARNING,
         Code.NO_CONTOUR_LAYER.value: Severity.WARNING,
+        # A drawing with no extent plots blank; nothing else on it matters.
+        Code.BBOX_DEGENERATE.value: Severity.ERROR,
         # An outline that does not close is a plotting defect a shop rejects.
         Code.PROFILE_OPEN.value: Severity.ERROR,
         Code.TITLE_BLOCK_NO_ATTR.value: Severity.WARNING,

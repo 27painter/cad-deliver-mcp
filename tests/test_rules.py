@@ -249,6 +249,36 @@ def test_profile_escalates_severity_without_touching_the_rule():
     assert SEVERITY_PROFILES["LEGACY_COMPAT"][Code.TITLE_BLOCK.value] is Severity.WARNING
 
 
+# ---------------------------------------------------------------- bbox
+
+def test_collapsed_extent_fails():
+    """An export that kept its layers and lost its geometry plots blank."""
+    d = drawing(extents=(0.0, 0.0, 0.0, 0.0))
+    results = by_code(run_profile(d, "GB_T_TIER1"), Code.BBOX_DEGENERATE.value)
+    assert results and not results[0].ok
+    assert "point" in results[0].detail
+    assert results[0].fix, "a collapsed bbox must say what to do about it"
+
+
+def test_collapsed_to_a_line_is_named_as_such():
+    d = drawing(extents=(0.0, 0.0, 0.0, 120.0))
+    results = by_code(run_profile(d, "GB_T_TIER1"), Code.BBOX_DEGENERATE.value)
+    assert results and not results[0].ok
+    assert "line" in results[0].detail
+
+
+def test_real_extent_passes():
+    d = drawing(extents=(0.0, 0.0, 180.0, 110.0))
+    results = by_code(run_profile(d, "GB_T_TIER1"), Code.BBOX_DEGENERATE.value)
+    assert results and results[0].ok
+
+
+def test_unknown_extent_abstains_rather_than_guessing():
+    """No extent recorded says nothing about the geometry."""
+    d = drawing(extents=None)
+    assert by_code(run_profile(d, "GB_T_TIER1"), Code.BBOX_DEGENERATE.value) == []
+
+
 def test_every_emitted_code_is_declared():
     """A rule must not invent a code; profiles can only override known ones."""
     d = drawing(

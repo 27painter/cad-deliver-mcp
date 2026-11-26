@@ -221,6 +221,23 @@ def parse(path: str) -> ParseResult:
         for layer in doc.layers
     ]
 
+    # The extent of model-space geometry. Without it `ParsedDrawing.degenerate`
+    # answered True for every drawing ever parsed — a property nobody could use.
+    # A collapsed bbox (a line that became a point, a part scaled to nothing) is
+    # the difference between "the export failed" and "the drawing is wrong", so
+    # it has to be a fact the parser records.
+    extents: tuple[float, float, float, float] | None = None
+    try:
+        from ezdxf import bbox as _ezdxf_bbox
+
+        box = _ezdxf_bbox.extents(msp)
+        if box.has_data:
+            extents = (box.extmin.x, box.extmin.y, box.extmax.x, box.extmax.y)
+    except Exception:
+        # A reader that cannot compute extents must not fail the parse; the
+        # bbox rule then simply has nothing to say.
+        extents = None
+
     text_styles: dict[str, str] = {}
     for style in doc.styles:
         text_styles[style.dxf.name] = style.dxf.get("font", "") or ""
@@ -363,6 +380,7 @@ def parse(path: str) -> ParseResult:
         attributes=attributes,
         segments=segments,
         closed_profiles=closed_profiles,
+        extents=extents,
         notes=notes,
     )
     return ParseResult(drawing=drawing, checks=checks)

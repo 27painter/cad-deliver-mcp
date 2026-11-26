@@ -38,6 +38,9 @@ class Code(str, Enum):
     # --- outline closure -------------------------------------------------
     PROFILE_OPEN = "E_PROFILE_OPEN"                # outline leaves a dangling end
 
+    # --- geometry integrity ----------------------------------------------
+    BBOX_DEGENERATE = "E_BBOX_DEGENERATE"          # geometry collapsed to a point or a line
+
 
 # The identifiers a rule emits must be these values, not free strings, so a
 # profile can override one without guessing at spelling.

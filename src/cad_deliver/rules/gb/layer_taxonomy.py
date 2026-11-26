@@ -20,7 +20,7 @@ from collections import Counter
 from ...models import ParsedDrawing, Severity
 from ..base import BaseStandardRule, Evidence, RuleContext, RuleResult, register_rule
 from ..codes import Code
-from ..taxonomy import LayerRole, classify, is_structural, linetype_matches
+from ..taxonomy import LayerRole, classify, is_outline_layer, is_structural, linetype_matches
 
 # Entity types that make up the visible outline of a part.
 CONTOUR_TYPES = frozenset(
@@ -208,9 +208,14 @@ class LayerTaxonomyRule(BaseStandardRule):
         if not contour_count:
             return []
 
+        # The denominator is outline geometry only. Centre lines, hatching,
+        # dimensions and frames are also LINE/CIRCLE entities, and counting them
+        # here used to dilute the share until a drawing with its whole outline on
+        # layer 0 could pass at 40%.
         total_contour = sum(
             count
-            for layer_map in drawing.entity_layers.values()
+            for layer_name, layer_map in drawing.entity_layers.items()
+            if is_outline_layer(layer_name)
             for kind, count in layer_map.items()
             if kind in CONTOUR_TYPES
         )
