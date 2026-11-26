@@ -44,6 +44,34 @@ class LayerTaxonomyRule(BaseStandardRule):
     layer = "standard"
     default_severity = Severity.WARNING
 
+    def precondition(self, drawing: ParsedDrawing) -> str | None:
+        """Nothing to classify when the source system does not use layers.
+
+        GB/T 4457.2 organises a drawing by layer, which assumes the author works
+        in a layer-based CAD system. SolidWorks is not one: it distinguishes line
+        types by colour and line style, and its DXF export writes every entity on
+        layer `0`. No COM interface changes that — CreateLayer2 succeeds, but
+        assigning the layer to an annotation and setting LayerOverride still
+        exports `0`, and the DXF mapping file's [Entities] section is ignored on
+        the SaveAs path.
+
+        A file where every entity sits on one single layer therefore says something
+        about the tool, not about the draughtsman. The distinction is sharp: a file
+        with *some* layer structure is judged normally, because there the author
+        did choose.
+        """
+        named = [name for name in drawing.entity_layers if name]
+        occupied = [name for name, counts in drawing.entity_layers.items() if counts]
+        if len(occupied) == 1 and occupied[0] in ("0", "Defpoints"):
+            return (
+                f"every entity sits on layer {occupied[0]!r} and nowhere else — the "
+                "source CAD system does not use layers (SolidWorks exports colour-"
+                "and linetype-based geometry this way, and no API or mapping file "
+                "changes it). There is no layer structure here to judge."
+            )
+        del named
+        return None
+
     def check(self, drawing: ParsedDrawing, ctx: RuleContext) -> list[RuleResult]:
         results: list[RuleResult] = []
 

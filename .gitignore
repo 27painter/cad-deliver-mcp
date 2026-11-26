@@ -46,3 +46,6 @@ _fmt_*.dxf
 _ps_*.dxf
 _probe*.dxf
 _tbt.dxf
+# one-off COM probes
+_layer_test.dxf
+_layer_test.py

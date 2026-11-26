@@ -73,6 +73,19 @@ def fix_for(check: Check) -> str | None:
     return FIX_HINTS.get(check.ident)
 
 
+# Rules whose abstention leaves a compliance dimension unverified. A file that on
+# one of these says "does not apply" cannot be called compliant — only "not shown
+# to be wrong", which is the UNKNOWN verdict.
+CRITICAL_RULES = frozenset(
+    {
+        "gb.title_block",
+        "gb.sheet_size",
+        "gb.layer_taxonomy",
+        "gb.closed_profile",
+    }
+)
+
+
 @dataclass
 class FileVerdict:
     path: str
@@ -116,6 +129,16 @@ class FileVerdict:
         if self.errors:
             return Verdict.FAIL
         if self.blocked:
+            return Verdict.UNKNOWN
+        # A pass means the checks that matter were run and came back clean. When a
+        # rule stepped aside, that dimension of compliance was not verified at all —
+        # and for the dimensions below, unverified is not the same as compliant: a
+        # drawing with no sheet format and one layer has "no title block problem"
+        # only in the sense that nobody looked.
+        skipped = [r for r in self.rules if not r.applicable]
+        if any(r.rule_id in CRITICAL_RULES for r in skipped):
+            return Verdict.UNKNOWN
+        if self.rules and all(not r.applicable for r in self.rules):
             return Verdict.UNKNOWN
         return Verdict.PASS
 
@@ -273,5 +296,8 @@ def verdict_from(checks: list[Check], rules: list[RuleResult] | None = None) -> 
     if any((not c.ok and c.severity == Severity.BLOCKED.value) for c in checks):
         return Verdict.UNKNOWN
     if any((not r.ok and r.severity is Severity.BLOCKED) for r in rules):
+        return Verdict.UNKNOWN
+    # Nothing was verified when every rule stepped aside; see FileVerdict.verdict.
+    if rules and all(not r.applicable for r in rules):
         return Verdict.UNKNOWN
     return Verdict.PASS
