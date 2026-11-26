@@ -95,13 +95,27 @@ def test_structural_layers_are_not_unclassified():
 
 def test_a3_sheet_passes_in_both_orientations():
     for w, h in ((420.0, 297.0), (297.0, 420.0)):
-        d = drawing(layouts=[LayoutInfo(name="Layout1", paper_width=w, paper_height=h)])
+        d = drawing(layouts=[LayoutInfo(name="Layout1", paper_width=w, paper_height=h, entity_count=3)])
         results = by_code(run_profile(d, "GB_T_TIER1"), Code.SHEET_SIZE.value)
         assert results and results[0].ok, f"{w}x{h} should be an A3 sheet"
 
 
+def test_sheet_size_abstains_when_nothing_is_on_a_sheet():
+    """No paper-space content means no sheet to measure.
+
+    SolidWorks SaveAs->DXF leaves paper space empty and reports Letter for the
+    Model layout's plot settings. Measuring that would report a defect about a
+    page nobody prints, on every real export, for ever.
+    """
+    d = drawing(layouts=[LayoutInfo(name="Model", paper_width=215.9, paper_height=279.4, entity_count=20)])
+    results = [r for r in run_profile(d, "GB_T_TIER1") if r.rule_id == "gb.sheet_size"]
+    assert len(results) == 1
+    assert results[0].applicable is False
+    assert results[0].ok is True
+
+
 def test_non_standard_sheet_fails_and_says_the_numbers():
-    d = drawing(layouts=[LayoutInfo(name="L", paper_width=400.0, paper_height=280.0)])
+    d = drawing(layouts=[LayoutInfo(name="L", paper_width=400.0, paper_height=280.0, entity_count=3)])
     result = by_code(run_profile(d, "GB_T_TIER1"), Code.SHEET_SIZE.value)[0]
     assert not result.ok
     assert "400 x 280" in result.detail
@@ -110,7 +124,9 @@ def test_non_standard_sheet_fails_and_says_the_numbers():
 
 
 def test_no_paper_size_is_unknown_not_pass():
-    d = drawing(layouts=[LayoutInfo(name="L")])
+    # Has content but declares no size: the size cannot be judged, which is not
+    # the same as no sheet existing at all.
+    d = drawing(layouts=[LayoutInfo(name="L", entity_count=3)])
     result = by_code(run_profile(d, "GB_T_TIER1"), Code.SHEET_SIZE_UNKNOWN.value)[0]
     assert not result.ok
     assert "cannot be judged" in result.detail
@@ -181,10 +197,30 @@ def _title_block(attrs: list[AttribItem]) -> BlockRef:
 
 
 def test_no_title_block_fails():
-    d = drawing(layouts=[LayoutInfo(name="Layout1", paper_width=420, paper_height=297)])
+    # A sheet that has content (frame lines) but no title block. The entity count
+    # matters: a layout with nothing on it at all is the signature of an export
+    # that dropped the whole sheet format, which the rule abstains on rather than
+    # blaming the drawing for it.
+    d = drawing(
+        layouts=[LayoutInfo(name="Layout1", paper_width=420, paper_height=297, entity_count=4)]
+    )
     result = by_code(run_profile(d, "GB_T_TIER1"), Code.TITLE_BLOCK.value)[0]
     assert not result.ok
     assert result.severity is Severity.ERROR
+
+
+def test_export_without_sheet_format_abstains_instead_of_failing():
+    """SolidWorks SaveAs->DXF writes no paper space at all; that is not a defect.
+
+    Reporting it as a missing title block would blame the drawing for the
+    exporter's behaviour, and would repeat on every such file for ever.
+    """
+    d = drawing(layouts=[LayoutInfo(name="Layout1", paper_width=420, paper_height=297)])
+    results = [r for r in run_profile(d, "GB_T_TIER1") if r.rule_id == "gb.title_block"]
+    assert len(results) == 1
+    assert results[0].applicable is False
+    assert results[0].ok is True          # abstaining never blocks a release
+    assert "sheet format" in results[0].detail
 
 
 def test_title_block_without_attributes_is_called_out():

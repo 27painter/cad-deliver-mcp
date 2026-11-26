@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 
 from ..core import SHEETS, SHEET_TOLERANCE_MM
-from ..models import Check, ParsedDrawing
+from ..models import Check, ParsedDrawing, Severity
 
 
 _UNIT_NAMES = {0: "unitless", 1: "inch", 4: "mm", 5: "cm", 6: "m"}
@@ -82,6 +82,12 @@ def check_drawing(drawing: ParsedDrawing) -> list[Check]:
             "paper space: " + ", ".join(sheets)
             if sheets
             else "no sheet has anything on it; nothing frames the drawing",
+            # Warns rather than fails. Whether the sheet format was written is a
+            # property of the exporter, not of the drawing: SolidWorks' SaveAs to
+            # DXF writes model-space geometry only, so a perfectly good drawing
+            # arrives here with an empty sheet. Failing that would blame the file
+            # for a behaviour its author never chose, on every such file.
+            severity=Severity.WARNING.value,
         )
     )
 

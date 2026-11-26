@@ -35,6 +35,25 @@ class SheetSizeRule(BaseStandardRule):
     layer = "standard"
     default_severity = Severity.ERROR
 
+    def precondition(self, drawing: ParsedDrawing) -> str | None:
+        """A sheet size only exists on a sheet.
+
+        Model space has no paper: the `paper_width`/`paper_height` a DXF reports
+        for the `Model` layout is whatever the writing application put in its plot
+        settings, and on a US install that is Letter. When nothing sits in paper
+        space — the signature of an export that did not write the sheet format —
+        there is no sheet to measure, and judging the `Model` layout reports a
+        defect about a page that will never be printed.
+        """
+        paper = [l for l in drawing.layouts if l.name.lower() != "model"]
+        has_content = any(l.entity_count > 0 or l.block_refs or l.blocks for l in paper)
+        if not has_content:
+            return (
+                "no paper-space content, so no sheet exists to measure; the Model "
+                "layout's paper size is a plot-setting artefact, not a sheet"
+            )
+        return None
+
     def check(self, drawing: ParsedDrawing, ctx: RuleContext) -> list[RuleResult]:
         results: list[RuleResult] = []
 

@@ -47,6 +47,37 @@ class TitleBlockRule(BaseStandardRule):
     layer = "standard"
     default_severity = Severity.ERROR
 
+    def precondition(self, drawing: ParsedDrawing) -> str | None:
+        """An export that wrote no sheet format cannot be judged for a title block.
+
+        SolidWorks' `SaveAs` to DXF writes the model-space geometry and nothing
+        else: the sheet format — frame lines *and* title block — is not exported at
+        all, and no preference toggle controls it. Such a file has **no paper-space
+        entities whatsoever**.
+
+        That is the signature to test, not the absence of a block. A drawing whose
+        title block was deleted still has its frame lines on the sheet, so it must
+        be reported as missing a title block; a drawing whose export dropped the
+        whole sheet format never had one to lose, and reporting it as missing
+        blames the drawing for the exporter's behaviour.
+        """
+        paper = [l for l in drawing.layouts if l.name.lower() != "model"]
+        # Content means entities or block references: a layout can carry a block
+        # without the parser having counted entities for it (hand-built drawings in
+        # tests do exactly that, and so does any DXF whose INSERT the reader kept
+        # but whose entity total it did not recompute).
+        has_content = any(
+            l.entity_count > 0 or l.block_refs or l.blocks for l in paper
+        )
+        if not has_content:
+            return (
+                "the DXF has no paper-space content at all — frame and title block "
+                "are both absent, so the exporter did not write the sheet format "
+                "(SolidWorks SaveAs→DXF drops it; a sheet format must be exported "
+                "explicitly). Nothing here says the drawing lacks a title block."
+            )
+        return None
+
     def check(self, drawing: ParsedDrawing, ctx: RuleContext) -> list[RuleResult]:
         results: list[RuleResult] = []
 
