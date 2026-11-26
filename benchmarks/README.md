@@ -150,3 +150,55 @@ large sheets (A0) parse slower and have more entities to classify.
 * The machine is a single laptop; latency is not a claim about a server.
 * The compliant set is treated as ground truth. That is a definition, not a
   measurement — see the Threats to Validity section of the paper.
+
+## Closed-loop repair experiment (`agent/`)
+
+Static metrics show the gate blocks. They do not show whether a model can act on
+what it reports. `agent/` runs that test: one sample per defect class, two arms,
+up to three repair attempts each.
+
+| arm | what the agent is told |
+|---|---|
+| A (control) | the machine code only — `FAIL: E_PROFILE_OPEN` |
+| B (treatment) | the full finding: code, severity, detail, evidence with coordinates, and a fix instruction |
+
+```bash
+python benchmarks/agent/verify_code.py <file.dxf>   # what arm A may run
+python benchmarks/agent/verify_full.py <file.dxf>   # what arm B may run
+python benchmarks/agent/plot.py                     # rebuilds repair_chart.svg
+```
+
+### Result: no difference
+
+```
+arm   Pass@1   Pass@3
+A       6/6      6/6
+B       6/6      6/6
+```
+
+Every sample was repaired on the first attempt, in both arms. **The fix_plan did
+not change the outcome.** Reported as measured, because the reason is instructive.
+
+### Why, and why this design cannot measure the thing it was meant to
+
+The control arm could read the DXF. Every A agent opened the file with ezdxf,
+walked the entity table, and located the defect without the gate's evidence — a
+three-vertex polyline, a layer attribute, a paper size. Once a model can read the
+artefact, a fix instruction is information it can obtain by a longer route for the
+same cost. Six locally-visible defects are not enough to make that route expensive.
+
+So the experiment shows the gate is *actionable* — models do repair drawings from
+its output, first time, in both arms — but it does not isolate the value of the
+detail. Claiming otherwise from this table would be wrong.
+
+To measure it, the gap has to be real:
+
+* deny the control arm file reads, so the code is genuinely all it has;
+* raise complexity until locating a dangling end by inspection costs many steps —
+  hundreds of entities, not eight;
+* measure cost as well as success (tool calls, tokens, wall time): the B agents
+  were visibly more direct even when both arms succeeded;
+* use defects that are not locally visible, such as an outline that is only open
+  after layer filtering, or a dimension override that disagrees by 0.3%.
+
+`results.json` carries the per-sample notes and the passages above verbatim.

@@ -1,0 +1,44 @@
+{
+  "experiment": "closed-loop repair, A/B on fix_plan detail",
+  "date": "2026-11-26",
+  "design": {
+    "arms": {
+      "A": "control: the gate prints only the machine code of what failed",
+      "B": "treatment: the gate prints code, severity, detail, evidence (coordinates) and a fix instruction"
+    },
+    "max_attempts": 3,
+    "samples": 6,
+    "note": "one sample per defect class; each arm edited an independent copy"
+  },
+  "results": [
+    {"sample": "mut_01_bbox_point",       "defect": "degenerate bbox",       "arm": "A", "file_pass": true, "rounds": 1, "agent_reported": true,  "notes": "diagnosed by reading the entity table; rebuilt geometry at the scale implied by the surviving dimension text"},
+    {"sample": "mut_01_bbox_point",       "defect": "degenerate bbox",       "arm": "B", "file_pass": true, "rounds": 1, "agent_reported": true,  "notes": "restored coordinates from the cached dimension blocks *D1/*D2"},
+    {"sample": "mut_05_profile_open",     "defect": "open profile",          "arm": "A", "file_pass": true, "rounds": 1, "agent_reported": true,  "notes": "found the 3-vertex polyline by inspection, patched group 70 and appended the missing vertex in the raw DXF text"},
+    {"sample": "mut_05_profile_open",     "defect": "open profile",          "arm": "B", "file_pass": true, "rounds": 1, "agent_reported": true,  "notes": "set closed=True on the polyline named in the finding"},
+    {"sample": "mut_09_sheet_size",       "defect": "non-standard sheet",    "arm": "A", "file_pass": true, "rounds": 1, "agent_reported": true,  "notes": "noticed the 400x280 paper size disagreed with the A0 frame geometry and restored both layouts plus $LIMMAX/$PLIMMAX"},
+    {"sample": "mut_09_sheet_size",       "defect": "non-standard sheet",    "arm": "B", "file_pass": true, "rounds": 1, "agent_reported": true,  "notes": "set paper_width/height to 420x297 as the finding indicated"},
+    {"sample": "mut_13_titleblock_gone",  "defect": "missing title block",   "arm": "A", "file_pass": true, "rounds": 1, "agent_reported": false, "notes": "file repaired; the agent's own report was lost, so the outcome is taken from re-running the gate"},
+    {"sample": "mut_13_titleblock_gone",  "defect": "missing title block",   "arm": "B", "file_pass": true, "rounds": 1, "agent_reported": true,  "notes": "inserted GB-TITLE at the frame corner with the three attributes filled"},
+    {"sample": "mut_17_dim_wrong_layer",  "defect": "dimension on wrong layer", "arm": "A", "file_pass": true, "rounds": 1, "agent_reported": true, "notes": "found the single mislayered DIMENSION by comparing layer membership"},
+    {"sample": "mut_17_dim_wrong_layer",  "defect": "dimension on wrong layer", "arm": "B", "file_pass": true, "rounds": 1, "agent_reported": true, "notes": "the finding named the entity handle; layer reassigned"},
+    {"sample": "mut_19_contour_on_zero",  "defect": "outline on layer 0",    "arm": "A", "file_pass": true, "rounds": 1, "agent_reported": true,  "notes": "identified the polyline and circle on layer 0"},
+    {"sample": "mut_19_contour_on_zero",  "defect": "outline on layer 0",    "arm": "B", "file_pass": true, "rounds": 1, "agent_reported": true,  "notes": "the finding named both handles; layer reassigned"}
+  ],
+  "summary": {
+    "A": {"n": 6, "pass_at_1": 6, "pass_at_3": 6},
+    "B": {"n": 6, "pass_at_1": 6, "pass_at_3": 6}
+  },
+  "conclusion": "No difference. Both arms repaired every sample on the first attempt.",
+  "why": [
+    "The control arm could read the DXF itself. Every A agent opened the file with ezdxf, inspected the entity table and located the defect without the gate's evidence. Once a model can read the artefact, a fix instruction is redundant information.",
+    "The six defects are all locally visible in the entity table: a 3-vertex polyline, a layer attribute, a paper size, a missing INSERT, a collapsed bbox. None required the topology or alias reasoning that would be hard to reproduce by hand.",
+    "Repair attempts were unlimited in tool use and cheap; a model that can script ezdxf will find a 3-vertex polyline in one pass."
+  ],
+  "what_this_does_not_show": "It does not show that fix_plan is useless. It shows that this experiment design cannot measure its value: the control arm had the same information by a longer route.",
+  "suggested_next": [
+    "Deny the control arm file reads (give it only the code) so the information gap is real. That measures whether the code alone is actionable.",
+    "Raise drawing complexity to hundreds of entities so locating a dangling end by inspection costs many more steps than reading a coordinate.",
+    "Measure cost as well as success: tool calls, tokens, wall time. The B agents were visibly more direct even when both succeeded.",
+    "Use defects that are not locally visible, for example an outline that is topologically open only after layer filtering, or a dimension whose override disagrees by 0.3%."
+  ]
+}

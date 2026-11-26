@@ -32,3 +32,6 @@ benchmarks/fixtures/mutated/*.dxf
 
 # The manifest, the task list and the result tables ARE committed: they are the
 # evidence behind every number reported.
+
+# Agent repair-experiment working copies (regenerate with the steps in benchmarks/agent)
+benchmarks/agent/work/
