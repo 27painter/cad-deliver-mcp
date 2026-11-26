@@ -228,3 +228,42 @@ cheaper to state than to be told.
 `results.json` the first round's per-sample notes. `tokens` is empty everywhere
 because this harness cannot observe it, and a fabricated number would be worse
 than a blank.
+
+### Re-reading the result by query level, not by size
+
+`analyse_levels.py` regroups the same data by what each defect *requires*:
+
+```
+level   n   A mean   B mean   delta
+L0      4      7.5      5.8    -23%
+L1      2     12.5     11.0    -12%
+L2      2      9.5      7.5    -21%
+```
+
+Aggregates hide the interesting part. Split by regime and the direction flips:
+
+| level | simple (8 entities) | complex (516 entities) | effect of size |
+|---|---|---|---|
+| L0 attribute | 10→7 (−30%), 9→5 (−44%) | 5→5 (0%), 6→6 (0%) | **removes** the advantage |
+| L2 topological | 5→6 (+20%) | 14→9 (−36%) | **creates** it |
+
+Same level, different size, opposite sign — a 56-point swing on L2. The reason is
+not obvious and is worth stating: with only 2 dimensions, the control agent has to
+*guess* which one is mislayered; with 45, one `group by layer` isolates the two
+outliers, so **more entities help the control arm** at L0. At L2 the reverse holds:
+a 200-segment outline has to be turned into a graph (5 → 14 calls), while the
+treatment arm is handed the coordinates and only verifies them (6 → 9).
+
+So the honest conclusion is neither "the fix_plan helps" nor "it does not":
+
+> The value of structured feedback depends not on the size of the artefact but on
+> whether size increases the cost of *finding the defect yourself*. Where a simple
+> query locates it, more entities add statistical contrast and cancel the
+> advantage; where the defect needs relational reasoning, scale amplifies it.
+
+This also says what the benchmark is missing. Every defect here sits at L0–L2 —
+all answerable by a script over the entity table. A semantic defect (L3: is this
+layer name right for this shop) or a cross-file one (L4: does the drawing match
+the part) would be unanswerable by traversal, and those are where the arms would
+finally separate. Neither exists in this dataset, which is itself the finding:
+CAD-agent benchmarks ask only questions a script can answer.
