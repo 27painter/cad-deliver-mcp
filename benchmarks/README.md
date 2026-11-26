@@ -53,7 +53,7 @@ Each class targets one code, so recall can be attributed:
 
 | class | n | injection | expected code | layer |
 |---|---:|---|---|---|
-| degenerate bbox | 4 | all geometry collapsed to a point | `E_BBOX_DEGENERATE` | geometry |
+| degenerate bbox | 4 | every entity kept, all coordinates collapsed to the origin | `E_BBOX_DEGENERATE` | geometry |
 | open profile | 4 | one side of the outline removed | `E_PROFILE_OPEN` | standard |
 | non-standard sheet | 4 | paper size → 400×280 mm | `E_SHEET_SIZE` | standard |
 | missing title block | 4 | INSERT deleted, or a required ATTRIB blanked | `E_TITLE_BLOCK` / `E_TITLE_BLOCK_BLANK` | standard |
@@ -85,24 +85,29 @@ tasks: 35  (compliant 15 = gen 15 + real 0, mutated 20)
 
 | defect class              | layer    |  n | G1   | G2   | G2.5 | G3    | LEGACY |
 |---------------------------|----------|---:|------|------|------|-------|--------|
-| degenerate bbox           | geometry |  4 | 0/4  | 0/4  | 0/4  | 4/4   | 4/4    |
+| degenerate bbox           | geometry |  4 | 0/4  | 0/4  | 0/4  | 4/4   | 0/4    |
 | dimension on wrong layer  | standard |  2 | 0/2  | 0/2  | 0/2  | 2/2   | 0/2    |
 | missing title block       | standard |  4 | 0/4  | 0/4  | 0/4  | 4/4   | 0/4    |
 | non-standard sheet        | standard |  4 | 0/4  | 0/4  | 0/4  | 4/4   | 0/4    |
 | open profile              | standard |  4 | 0/4  | 0/4  | 0/4  | 4/4   | 0/4    |
 | outline on layer 0        | standard |  2 | 0/2  | 0/2  | 0/2  | 2/2   | 0/2    |
-| ALL (geometry)            | geometry |  4 | 0/4  | 0/4  | 0/4  | 4/4   | 4/4    |
+| ALL (geometry)            | geometry |  4 | 0/4  | 0/4  | 0/4  | 4/4   | 0/4    |
 | ALL (standard)            | standard | 16 | 0/16 | 0/16 | 0/16 | 16/16 | 0/16   |
-| ALL                       | both     | 20 | 0/20 | 0/20 | 0/20 | 20/20 | 4/20   |
+| ALL                       | both     | 20 | 0/20 | 0/20 | 0/20 | 20/20 | 0/20   |
 ```
 
 Reading it:
 
 * **G1, G2 and G2.5 intercept nothing.** Static syntax checks cannot see content:
   a drawing with its sheet at 400×280 mm opens perfectly.
-* **LEGACY intercepts 4/20** — and only the degenerate-bbox class, because
-  collapsing all geometry also empties the model space, which the pre-existing
-  `drawing.entities` check catches. Every drafting-standard defect slips through.
+* **LEGACY intercepts 0/20.** The pre-existing checker catches nothing in any
+  class. Note that this is conditional on how the bbox defect is injected: an
+  earlier mutation deleted the model space, which tripped `drawing.entities` and
+  credited the old checker with 4/20. The current mutation keeps all eight
+  entities and only collapses their coordinates to the origin, so the entity
+  count still passes and the interception is attributable to `geo.bbox_degenerate`
+  alone. That is the difference between "an empty drawing" and "degenerate
+  geometry", and it is what makes the row honest.
 * **G3 intercepts 20/20**, and `G3_exact` in the CSV is also 20/20: it names the
   injected code each time, not just "something is wrong".
 
