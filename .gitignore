@@ -61,3 +61,7 @@ corrupt.dxf
 corrupt.pdf
 sample.dxf
 two_page.pdf
+
+# Human-eval case files: rebuilt by scripts/build_human_eval.py
+benchmarks/human_eval/cad/
+benchmarks/human_eval/png/
