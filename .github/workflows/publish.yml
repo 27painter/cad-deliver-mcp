@@ -1,0 +1,71 @@
+name: publish
+
+# Publishes to PyPI through GitHub's OIDC identity -- no API token is stored in
+# this repository, in a secret, or on the maintainer's machine.
+#
+# **Manual only, on purpose.** A workflow that fires on every `v*` tag publishes
+# a release as a side effect of pushing a tag, which is a decision nobody made
+# deliberately. Here the tag is a marker of what shipped; publishing is a
+# separate, explicit act.
+#
+# Why keep it at all: it is the fallback for the day a local PyPI credential
+# expires or is revoked. OIDC needs no stored token, so it keeps working when one
+# does not.
+#
+# One-time setup on pypi.org -- project `cad-deliver-mcp` -> Publishing ->
+# "Add a new publisher" -> GitHub, with
+#     Owner                : 27painter
+#     Repository           : cad-deliver-mcp
+#     Workflow name        : publish.yml
+#     Environment          : (leave empty)
+#
+# Dispatch this workflow **from the tag** (Actions -> publish -> Run workflow ->
+# "Use workflow from: v1.0.0"), not from `main`. The first step refuses a branch
+# ref, and the second refuses a tag that disagrees with `pyproject.toml` -- a
+# published version that does not match its tag is a lie about what shipped.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write   # required for OIDC trusted publishing
+
+jobs:
+  publish:
+    name: build and upload to PyPI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7
+        with:
+          python-version: "3.13"
+
+      - name: Refuse to publish from a branch
+        if: github.ref_type != 'tag'
+        shell: bash
+        run: |
+          echo "::error::Dispatched from '${{ github.ref_name }}', which is a ${{ github.ref_type }}, not a tag. Re-run with 'Use workflow from: v1.0.0'."
+          exit 1
+
+      - name: Tag and pyproject agree
+        shell: bash
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(python -c "import tomllib, pathlib; print(tomllib.loads(pathlib.Path('pyproject.toml').read_text('utf-8'))['project']['version'])")"
+          echo "tag=$tag pyproject=$version"
+          if [ "$tag" != "$version" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match pyproject version $version"
+            exit 1
+          fi
+
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install --upgrade build twine
+          python -m build
+          python -m twine check dist/*
+
+      # The only step that needs credentials, and it never sees one: the action
+      # exchanges the job's OIDC token for a short-lived PyPI upload token.
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086  # v1.14.3

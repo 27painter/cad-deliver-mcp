@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "cad-deliver-mcp: a pre-delivery gatekeeper for LLM-generated CAD drawings"
+abstract: >-
+  An offline verification gatekeeper for CAD artefacts produced by LLM agents.
+  It parses DXF, DWG, PDF, STEP and review reports without launching a commercial
+  CAD runtime, evaluates geometric integrity and GB/T drafting-standard
+  compliance, and returns one of three verdicts: PASS, FAIL, or UNKNOWN.
+  UNKNOWN is a terminal state, never a pass: a dimension that could not be
+  inspected blocks delivery instead of silently succeeding.
+type: software
+authors:
+  - name: "27painter"
+version: 1.0.0
+date-released: 2026-11-28
+license: MIT
+repository-code: "https://github.com/27painter/cad-deliver-mcp"
+url: "https://pypi.org/project/cad-deliver-mcp/"
+keywords:
+  - CAD
+  - DXF
+  - drafting standards
+  - GB/T
+  - LLM agents
+  - MCP
+  - verification
+  - abstention

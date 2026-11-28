@@ -1,0 +1,28 @@
+# Normalize line endings on checkout/commit so Windows and POSIX contributors
+# produce identical diffs. `core.autocrlf=true` alone is a per-clone setting:
+# a contributor who clones with it off commits CRLF and every later diff of that
+# file shows the whole file as changed. This makes the rule part of the repo.
+* text=auto eol=lf
+
+# Binary artefacts must never be line-ending converted.
+*.pdf binary
+*.png binary
+
+# The committed DXF fixtures are the evidence that nothing was post-processed
+# after the CAD application wrote them. Normalising their line endings would
+# change their bytes, so they are declared binary on purpose: byte-exact, and
+# never rewritten by a checkout on another platform.
+*.dxf binary
+*.dwg binary
+
+# LaTeX sources are text; the build products next to them are not (see .gitignore).
+*.tex text
+*.bib text
+*.cls text
+*.bst text
+
+# PowerShell scripts written on Windows: keep CRLF so `.\script.ps1` runs from
+# a default console without the "not digitally signed"/line-ending warnings.
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
