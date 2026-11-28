@@ -241,14 +241,14 @@ python tests/test_rules.py
 各测试套件：
 * `tests/test_layering.py` —— 强制 `geometry/` 与 `rules/` 零 CAD 库导入
 * `tests/test_geometry.py` 与 `tests/test_topology.py` —— 包围盒退化、容差吸附的环闭合、图层过滤
-* `tests/test_rules.py` —— 22 个单元测试，全部基于纯内存 `ParsedDrawing` 夹具
+* `tests/test_rules.py` —— 28 个单元测试，全部基于纯内存 `ParsedDrawing` 夹具
 * `tests/test_server.py` —— 端到端 `stage → verify → commit`、SHA-256 篡改拒绝、同名冲突拒绝
 * `tests/test_legacy_compat.py` —— 退出码 `0 / 1 / 2` 与 `LEGACY_COMPAT` 门禁一致性
 * `tests/test_packaging.py` —— 版本一致性，以及 PyPI 会在上传时拒绝的分类器
 
 ### 路线图
 - [x] **核心引擎与 2PC MCP 服务端：** 正交 `ParsedDrawing` 契约、`GB_T_TIER1` 规则集、原子提交库，以及 `dsh-sw-cad` 命令行集成。
-- [ ] **50 题混合基准集（`benchmarks/`）：** 15 个脱敏的真实 SolidWorks/NX 导出 + 15 个参数化 `ezdxf` 夹具 + 20 个确定性缺陷注入用例，在 G1–G3 基线上评估召回率、误杀率与耗时。
+- [x] **50 题混合基准集（`benchmarks/`）：** 15 个脱敏的真实 SolidWorks/NX 导出 + 15 个参数化 `ezdxf` 夹具 + 20 个确定性缺陷注入用例，在 G1–G3 基线上评估召回率、误杀率与耗时。
 
 ## 许可
 

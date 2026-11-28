@@ -82,9 +82,9 @@ Cumulative, so the difference between adjacent arms is one layer of checking:
 
 | arm | what it does |
 |---|---|
-| G1 | header only — is this a readable DXF |
-| G2 | + geometry — extents, entity counts |
-| G2.5 | + outline closure, the pre-existing `dsh-sw-cad` check set |
+| G1 | no gate — always PASS |
+| G2 | file exists and is non-empty |
+| G2.5 | static syntax — `ezdxf` opens it, model space has entities, `$INSUNITS != 0` |
 | G3 | + the full rule set (`GB_T_TIER1` plus `PROFILE_CLOSURE` routing) |
 | LEGACY_COMPAT | the published `delivery.json` contract, no GB rule at all |
 
@@ -120,10 +120,10 @@ tasks: 50  (compliant 30 = gen 15 + real 15, mutated 20)
 | arm           |  n | p50 (ms) | p95 (ms) |
 |---------------|---:|---------:|---------:|
 | G1            | 50 |    0.002 |    0.002 |
-| G2            | 50 |    0.197 |    0.370 |
-| G2.5          | 50 |   10.185 |   47.252 |
-| G3            | 50 |   12.653 |   51.976 |
-| LEGACY_COMPAT | 50 |   11.775 |   34.342 |
+| G2            | 50 |    0.194 |    0.340 |
+| G2.5          | 50 |   10.295 |   43.881 |
+| G3            | 50 |   12.369 |   50.748 |
+| LEGACY_COMPAT | 50 |   11.551 |   33.366 |
 ```
 
 Reading it:
@@ -139,7 +139,7 @@ Reading it:
   what makes the row honest.
 * **G3 intercepts 20/20**, and `G3_exact` in the CSV is also 20/20: it names the
   injected code each time, not just "something is wrong".
-* **The rule layer costs about 2.5 ms at the median over G2.5.** Parsing dominates;
+* **The rule layer costs about 2.1 ms at the median over G2.5.** Parsing dominates;
   six rules are nearly free on top of it. The p95 gap is wider because the A2 sheets
   parse slower and carry more entities to classify.
 

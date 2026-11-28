@@ -202,7 +202,7 @@ Recall, G3: 20/20 by defect class — degenerate bbox 4/4, dimension on wrong la
 missing title block 4/4, non-standard sheet 4/4, open profile 4/4, outline on layer 0 2/2.
 G1, G2 and G2.5 catch none of the standard-level defects (0/16); LEGACY_COMPAT 0/20.
 
-Latency per call, p50/p95 ms: G3 12.69 / 54.18, G2.5 10.19 / 47.25.
+Latency per call, p50/p95 ms: G3 12.37 / 50.75, G2.5 10.30 / 43.88.
 ```
 
 Both rates carry a bound, in both directions, computed the same way in pure Python:
@@ -308,8 +308,11 @@ layer defects**.
 
 That is not a tuning problem. `E_CONTOUR_ON_ZERO` moves the outline to layer `0`, which
 plots at colour 7 — the colour the outline layer already used, so the render is unchanged:
-18 chromatic pixels out of 18 919 non-white, against 19 out of 22 159 for a compliant
-drawing. **A layer name is not a picture.** Most of what GB/T regulates is naming and
+1 098 chromatic pixels out of 18 919 non-white (5.8%), against 1 150 out of 22 159 (5.2%)
+for a compliant drawing (`max(R,G,B) - min(R,G,B) > 30/255`), with essentially all chromatic
+pixels lying on the red ACI-1 centerlines (1 082 of 1 098; the remainder are anti-aliased edge
+pixels of those same lines) and none on the part contour in either image.
+**A layer name is not a picture.** Most of what GB/T regulates is naming and
 attribution, which is precisely the part a reviewer that only looks cannot check.
 
 Reproduce with:
@@ -384,14 +387,14 @@ python tests/test_rules.py
 Individual test suites:
 * `tests/test_layering.py` — Enforces zero CAD-library imports in `geometry/` and `rules/`
 * `tests/test_geometry.py` & `tests/test_topology.py` — Bounding-box degeneracy, tolerance-snapped ring closure, and layer filtering
-* `tests/test_rules.py` — 22 unit tests over pure in-memory `ParsedDrawing` fixtures
+* `tests/test_rules.py` — 28 unit tests over pure in-memory `ParsedDrawing` fixtures
 * `tests/test_server.py` — End-to-end `stage → verify → commit`, SHA-256 tamper rejection, and collision refusal
 * `tests/test_legacy_compat.py` — Exit codes `0 / 1 / 2` and `LEGACY_COMPAT` gating parity
 * `tests/test_packaging.py` — Version consistency and classifiers that PyPI would reject at upload time
 
 ### Roadmap
 - [x] **Core Engine & 2PC MCP Server:** Orthogonal `ParsedDrawing` contract, `GB_T_TIER1` ruleset, atomic commit store, and `dsh-sw-cad` CLI integration.
-- [ ] **50-Task Hybrid Benchmark (`benchmarks/`):** 15 anonymized real SolidWorks/NX exports + 15 parametric `ezdxf` fixtures + 20 deterministic fault-injected cases evaluating recall, false-positive rate, and latency across G1–G3 baselines.
+- [x] **50-Task Hybrid Benchmark (`benchmarks/`):** 15 anonymized real SolidWorks/NX exports + 15 parametric `ezdxf` fixtures + 20 deterministic fault-injected cases evaluating recall, false-positive rate, and latency across G1–G3 baselines.
 
 ## License
 
