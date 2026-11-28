@@ -9,6 +9,23 @@ Version `1.0.0` is the first release where every number quoted in the README can
 be reproduced from a file committed to this repository. Earlier releases could
 not make that claim, which is the whole point of the project.
 
+## [1.0.1] — 2026-11-28
+
+### Fixed
+
+- The package reported version `1.0.0` while the archival tag and the Zenodo
+  record said `v1.0.1`. A citation naming a version that `pip install` cannot
+  produce is a small lie with a long tail, so the three now agree.
+- The manuscript named no affiliation while the repository named one. The author
+  block now carries the School of Mechanical Engineering, Liuzhou Institute of
+  Technology, and the paper gained a Data and Code Availability statement citing
+  the Zenodo DOI.
+- The DOI badge and the archival section existed only in the English README; a
+  reader arriving at the translation saw a different project. Both languages now
+  carry them.
+- The license badge linked to `LICENSE`, which resolves on GitHub and breaks on
+  PyPI, where the rendered description has no repository to resolve it against.
+
 ## [1.0.0] — 2026-11-28
 
 ### Added

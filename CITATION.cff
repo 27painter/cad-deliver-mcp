@@ -11,7 +11,7 @@ abstract: >-
 type: software
 authors:
   - name: "27painter"
-version: 1.0.0
+version: 1.0.1
 date-released: 2026-11-28
 license: MIT
 repository-code: "https://github.com/27painter/cad-deliver-mcp"
