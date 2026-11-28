@@ -1,8 +1,9 @@
 # cad-deliver-mcp
 
 [![PyPI](https://img.shields.io/pypi/v/cad-deliver-mcp?logo=pypi)](https://pypi.org/project/cad-deliver-mcp/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/27painter/cad-deliver-mcp/blob/main/LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24625649.svg)](https://doi.org/10.5281/zenodo.24625649)
 
 English | [中文](https://github.com/27painter/cad-deliver-mcp/blob/main/README.zh.md)
 
@@ -396,6 +397,12 @@ Individual test suites:
 - [x] **Core Engine & 2PC MCP Server:** Orthogonal `ParsedDrawing` contract, `GB_T_TIER1` ruleset, atomic commit store, and `dsh-sw-cad` CLI integration.
 - [x] **50-Task Hybrid Benchmark (`benchmarks/`):** 15 anonymized real SolidWorks/NX exports + 15 parametric `ezdxf` fixtures + 20 deterministic fault-injected cases evaluating recall, false-positive rate, and latency across G1–G3 baselines.
 
+## Archival Artifact & Citation
+
+The frozen source code, 74-test suite, 50-drawing hybrid benchmark, 15-part AutoCAD 2025 / SolidWorks 2025 exports, 24 closed-loop repair runs, and reproducibility logs accompanying our paper (*Abstention Is Not a Pass: Pre-Delivery Verification for LLM-Generated CAD Drawings*, Aochen Wang, School of Mechanical Engineering, Liuzhou Institute of Technology) are permanently archived on Zenodo:
+
+- **DOI:** [10.5281/zenodo.24625649](https://doi.org/10.5281/zenodo.24625649)
+
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/27painter/cad-deliver-mcp/blob/main/LICENSE)

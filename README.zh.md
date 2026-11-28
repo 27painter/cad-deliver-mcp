@@ -1,8 +1,9 @@
 # cad-deliver-mcp
 
 [![PyPI](https://img.shields.io/pypi/v/cad-deliver-mcp?logo=pypi)](https://pypi.org/project/cad-deliver-mcp/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/27painter/cad-deliver-mcp/blob/main/LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24625649.svg)](https://doi.org/10.5281/zenodo.24625649)
 
 [English](README.md) | 中文
 
@@ -250,6 +251,12 @@ python tests/test_rules.py
 - [x] **核心引擎与 2PC MCP 服务端：** 正交 `ParsedDrawing` 契约、`GB_T_TIER1` 规则集、原子提交库，以及 `dsh-sw-cad` 命令行集成。
 - [x] **50 题混合基准集（`benchmarks/`）：** 15 个脱敏的真实 SolidWorks/NX 导出 + 15 个参数化 `ezdxf` 夹具 + 20 个确定性缺陷注入用例，在 G1–G3 基线上评估召回率、误杀率与耗时。
 
+## 归档与引用
+
+与论文 *Abstention Is Not a Pass: Pre-Delivery Verification for LLM-Generated CAD Drawings*（Aochen Wang, School of Mechanical Engineering, Liuzhou Institute of Technology）配套的冻结源码、74 项自动化测试、50 题混合基准集、15 件 AutoCAD 2025 / SolidWorks 2025 导出、24 次闭环修复实验与可复现日志，已永久归档于 Zenodo：
+
+- **DOI：** [10.5281/zenodo.24625649](https://doi.org/10.5281/zenodo.24625649)
+
 ## 许可
 
-[MIT](LICENSE)
+[MIT](https://github.com/27painter/cad-deliver-mcp/blob/main/LICENSE)
