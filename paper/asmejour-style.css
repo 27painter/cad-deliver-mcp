@@ -1,0 +1,810 @@
+/*  asmejour-style.css
+
+    v1.28, 2026-11-05
+	Author: John H. Lienhard
+	License: MIT License, https://ctan.org/license/mit
+    This css code styles the HTML rendering of asmejour class
+*/
+
+
+/* --- Resilience & typography --- */
+
+*, *::before, *::after { box-sizing: border-box; }
+math, math * { box-sizing: content-box; }
+
+html 
+	{ 
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: none;
+    text-size-adjust: 100%;
+	}
+:root
+	{
+	color-scheme: light dark;
+	--ui-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", "DejaVu Sans", Arial, sans-serif;
+	--ui-mono: ui-monospace, SFMono-Regular, Consolas, "DejaVu Sans Mono", "Liberation Mono", "Noto Sans Mono", Menlo, monospace;
+	--math-font: "STIX Two Math", "Latin Modern Math", "XITS Math", "Cambria Math", math;
+    --math-fallback-bold:    var(--math-font); 
+	--code-color:         #3333b3;   /* sometimes called 'structure' */
+	--footnote-color:     #1f4e79;   /* a medium grayish blue */
+	--fg-color:           #111;      
+	--bg-color:           #fff;
+	--hr-color:           #b3b3b3;
+	--link-color:         #0033a0;   /* #0000ee, browser defaults */
+	--link-visited-color: #663366;   /* #551a8b */
+	--link-hover-color:   #0b0080;   /* #ee0000 */
+	--xref-color:         #0033a0;   /* #0000ee */
+	--table-rule:         #767676;   /* midrule, light mode */
+	--table-rule-strong:  #404040;   /* toprule, bottomrule, light mode */
+	}
+
+/* These settings aim for sans serif font. */
+body {
+    font-family:    var(--ui-sans);
+	font-size: 		12pt;       
+	line-height: 	1.2;     	/* ~14pt leading */
+	margin: 		36pt auto;  /* centered */
+	padding-inline: 1rem;
+	max-width: 		min(75ch, 46rem);		/* ~75 characters per line; 46rem = 522pt */
+	hyphens: 		auto;
+	overflow-wrap: 	anywhere; 				/* protect narrow columns */
+	hanging-punctuation: first allow-end; 	/* improve ragged-right when present */
+	color: var(--fg-color); 
+	background: var(--bg-color);
+}
+
+/* Other color selectors */
+h1,h2,h3,
+   div[data-pdf-se-type="Caption"] { color: var(--fg-color); }
+
+hr { border-color: var(--hr-color); }
+
+a[href]          { color: var(--link-color); text-decoration: underline; }
+a[href]:visited  { color: var(--link-visited-color); }
+a[href^="#"]     { color: var(--xref-color); }
+a[href]:hover,
+   a[href]:focus { color: var(--link-hover-color); }
+
+/* prevent hanging-punctuation from reaching MathML operators (Safari) /
+math, math * 
+    {
+    hanging-punctuation: none;
+    }
+
+
+/* Adjust fonts of title, prevent hyphenation */
+
+div[data-pdf-se-type="Title"]
+	{
+	font-size: 20pt;
+	font-weight: 700;
+	hyphens: none;
+	overflow-wrap: normal;
+	word-break: keep-all;
+	margin-top: 2em; 
+	}
+
+
+/* Reduce paragraph spacing inside Author_Block only, leave space under */
+
+div[data-pdf-se-type-original="Author_Block"] p 
+	{
+	margin-top: 0.2em;
+	margin-bottom: 0.2em;
+	}
+
+div[data-pdf-se-type-original="Author_Block"] {
+  margin-bottom: 1em;
+}
+
+
+/* ============================================================
+   Headings: h1, h2, h3 (ASME journals use only these three)
+   Matches both the older and newer LaTeX tagging names:
+     paragraph wrapper:  text-unit       -> semantic-para
+     number span:        section-number  -> heading-number
+   ============================================================ */
+
+/* Heading font weights */
+
+h1[data-pdf-se-type="H1"],
+h2[data-pdf-se-type="H2"]
+	{
+	font-weight: 700;
+	}
+
+
+/* Heading sizes, margins */
+
+h1[data-pdf-se-type="H1"]
+   {
+   font-size:  18pt;
+   margin-top: 2em;
+   }
+
+/* h2[data-pdf-se-type="H2"]
+   {
+   font-size:  16pt;
+   margin-top: 1.5em;
+   } */
+
+
+/* h2 (subsection): run-in with the text that follows */
+
+h2[data-pdf-se-type="H2"]
+   {
+   font-size:     12pt;
+   margin-top:    1.5em;
+   display:       inline-block;
+   margin-right:  0.5em;
+   margin-bottom: 0em;
+   text-align:    left !important;
+   }
+
+
+/* h3 (subsubsection): run-in with the text that follows */
+
+h3[data-pdf-se-type="H3"]
+   {
+   font-size:     12pt;
+   margin-top:    1.2em;
+   display:       inline-block;
+   margin-right:  0.5em;
+   margin-left:   1em;
+   margin-bottom: 0em;
+   text-align:    left !important;
+   font-weight:   500;
+   font-style:    italic;   /* ASME journal style */
+   }
+
+
+/* The paragraph after an h2 or h3 flows onto the heading line */
+
+:is(h2[data-pdf-se-type="H2"], h3[data-pdf-se-type="H3"])
+  + div:is([data-pdf-se-type-original="semantic-para"],
+           [data-pdf-se-type-original="text-unit"])
+   {
+   display: inline;
+   }
+
+:is(h2[data-pdf-se-type="H2"], h3[data-pdf-se-type="H3"])
+  + div:is([data-pdf-se-type-original="semantic-para"],
+           [data-pdf-se-type-original="text-unit"]) > p:first-of-type
+   {
+   display: inline;
+   }
+
+
+/* An h2 directly followed by an h3 stays a block heading.
+   The second form covers an h3 wrapped in its own <section>. */
+
+h2[data-pdf-se-type="H2"]:is(:has(+ h3[data-pdf-se-type="H3"]),
+                             :has(+ section > h3[data-pdf-se-type="H3"]))
+   {
+   display: block;
+   }
+
+
+/* Numbered section titles: space between the number span and the heading text */
+
+:is(h1[data-pdf-se-type="H1"],
+    h2[data-pdf-se-type="H2"],
+    h3[data-pdf-se-type="H3"])
+  > span:is([data-pdf-se-type-original="heading-number"],
+            [data-pdf-se-type-original="section-number"])
+   {
+   margin-inline-end: 0.5em;
+   white-space:       nowrap;   /* keep a number like "1.1" from being split */
+   }
+
+/* Must come after the rule above: equal specificity, so the later rule wins */
+
+h1[data-pdf-se-type="H1"]
+  > span:is([data-pdf-se-type-original="heading-number"],
+            [data-pdf-se-type-original="section-number"])
+   {
+   margin-inline-end: 0.75em;
+   }
+   
+/* Eliminate spurious horizontal space from some doc-pagebreaks. Do this before the next pieces of code. */
+[role="doc-pagebreak"] {
+margin: 0 !important;
+}
+
+
+/* core MathML */
+
+math,
+.math, .inline, .formula, .eq,
+  span[data-pdf-se-type="Formula"] 
+    {
+    font-family: var(--math-font);
+    }
+    
+/* bold/bold-italic variants (fallback styling; Unicode bold glyphs handle most cases) */
+math [mathvariant="bold"],
+  .math-bold            { font-weight: bold; }
+  math [mathvariant="bold-italic"] 
+    { 
+    font-weight: bold; 
+    font-style: italic; 
+    }
+
+/* Math, inline formula wrappers and SVG text inside headings and captions:
+   - set math fallback font
+   - request bold math face and normal style
+   - inherit heading font-size and tighten line-height for math material */
+:is(h1,h2,figcaption,caption) 
+:is(
+	math,
+	span[data-pdf-se-type="Formula"],
+	.formula,
+	.math,
+	.eq,
+	svg text
+	) 
+	{
+	font-family: 	var(--math-fallback-bold);
+	font-weight: 	700;
+	font-style: 	normal;
+	line-height: 	1;
+	font-size: 		inherit;
+	}
+
+/* Suppress over-stretching of multiline equations */
+/* div[data-pdf-se-type="Formula"] 
+    {
+    display: flex;
+    justify-content: center; /* Centers the whole equation block */
+    width: 100%;
+    } */
+      
+/* Equations: safe centering + scroll */
+div[data-pdf-se-type="Formula"] 
+    {
+    display:flex; 
+    justify-content:flex-start; 
+    overflow-x:auto; max-width:100%; 
+    }
+
+div[data-pdf-se-type="Formula"] > * { margin-inline:auto; }
+
+div[data-pdf-se-type="Formula"] mtable.multline
+    {
+    width: auto !important; /* Overrides the hardcoded width attribute */
+    max-width: 100%;
+    }
+
+
+/* Tables */
+	
+/* Increase the default separation of all table columns,
+   Use tabular figures (monospaced) in tables,	
+   Center data tables only (leave ARIA presentation tables alone) */
+
+table[data-pdf-se-type="Table"]:not(.ARIA-role-presentation)
+	{
+	border-collapse: separate;
+	border-spacing: 0;
+	font-variant-numeric: tabular-nums;
+	margin: 	    0.75em auto;
+	max-width: 	    100%; /* need to give a value for auto margins */
+	}
+
+
+/* cancel the body's char-level breaking inside data tables: prose wraps at spaces; numbers stay whole. */
+table[data-pdf-se-type="Table"] :is(th, td) 
+    {
+    overflow-wrap: normal;
+    }
+	
+/* an accommodation that can be used to prevent adjacent wide columns from crushing much smaller columns */
+
+th span[data-pdf-se-type-original="MinWidSpan"]
+	{ 
+	display: inline-block;
+	min-width: 7rem;
+	}
+
+/* align paragraph cells in table to the left */
+table[data-pdf-se-type="Table"]:not(.ARIA-role-presentation) p	
+    {
+	text-align: left!important;
+	}
+	
+/* right align non-p columns, e.g. numbers */
+table[data-pdf-se-type="Table"]:not(.ARIA-role-presentation) td 
+    {
+    text-align: right; 
+     }
+
+table[data-pdf-se-type="Table"] th,
+table[data-pdf-se-type="Table"] td 
+	{ 
+	padding: 0; 
+	}
+
+table[data-pdf-se-type="Table"] th + th,
+table[data-pdf-se-type="Table"] td + td 
+	{
+	padding-left: 1em;
+	}
+
+/* Center all table header cells */
+
+table[data-pdf-se-type="Table"] th 
+	{
+	text-align: center;
+	}
+
+/* Bold math in table header cells */
+th math, th math * 
+	{
+	font-weight: 700 !important ; 
+	font-style: normal !important ;   /* prevents italics on symbols */
+	}
+
+/* Adjust tables using p{..cm} columns */
+th div p, td div p
+	{
+	margin-top: 	0.2em;
+	margin-bottom: 	0.2em;
+	}
+
+/* --- Booktabs-style horizontal rules --- */
+
+/* Ensure no vertical borders */
+table:not(.ARIA-role-presentation) th,
+table:not(.ARIA-role-presentation) td 
+	{
+	border: none;
+	}
+
+/* Top rule above the table header row (toprule) */
+table:not(.ARIA-role-presentation) tr:first-child > :is(th, td)
+	{
+	border-top: 2px solid var(--table-rule-strong);
+	}
+
+/* Mid rule below header (midrule) */
+table:not(.ARIA-role-presentation) th 
+	{
+	padding-bottom: 0.25em;
+	padding-top: 0.25em;
+	border-bottom: 1px solid var(--table-rule);
+	}
+
+/* Multi-row headers: draw the midrule only under the last header row */
+table:not(.ARIA-role-presentation) tr:has(+ tr > th) > th:not([rowspan])
+	{
+	border-bottom: none;
+	}
+	
+/* Slight increase in separation of non-header rows (readability) */
+table:not(.ARIA-role-presentation) tr > td
+	{
+	padding-top: 0.1em;
+	}
+
+/* Bottom rule below last body row (bottomrule) */
+table:not(.ARIA-role-presentation) tr:last-child > td  
+	{
+	border-bottom: 2px solid var(--table-rule-strong);
+	padding-bottom: 0.25em;
+	}
+
+/* Special handling of ARIA (presentation) tables */
+
+/* Keep presentation tables (not data tables) at left margin */
+.ARIA-role-presentation[data-pdf-se-type="Table"]
+	{
+	  padding-left: 0;
+	  border-collapse: collapse;
+	}
+
+.ARIA-role-presentation[data-pdf-se-type="Table"] td + td,
+.ARIA-role-presentation[data-pdf-se-type="Table"] th + th 
+	{
+    padding-left: 	0.5em;
+	padding-right: 	0.5em;
+	}
+
+
+/* Captions */
+/* The effectiveness of all this is changed/reduced by loading the caption/subcaption packages */
+
+div[data-pdf-se-type="Caption"]
+    {
+    text-align: center;
+    }
+
+/* Let's keep caption labels on the same line as caption text */
+div[data-pdf-se-type="Caption"]  p[data-pdf-se-type="P"] 
+	{    
+	display: inline;
+	font-weight: bold;  /* make all caption text bold; note math-fallback below */
+	}
+	
+/* boldface labels on captions, with space after label */	
+div[data-pdf-se-type="Caption"] > span[data-pdf-se-type="Lbl"] 
+	{
+	font-weight: bold;
+	}
+	
+div[data-pdf-se-type="Caption"]  span[data-pdf-se-type="Lbl"]::after 
+	{
+	content: "";
+	display: inline-block;
+	width: 0.5em;
+	}
+
+/* Math fallback for math/formula-like children and SVG text */
+div[data-pdf-se-type="Caption"] 
+:is(
+  math,
+  .inline,
+  span[data-pdf-se-type="Formula"],
+  .formula,
+  .math,
+  .eq,
+  svg text
+) 
+	{
+	font-family: 	var(--math-fallback-bold);    
+/*	font-family: 	var(--math-fallback-regular); */
+	font-style: 	normal;
+	line-height: 	inherit;
+	}
+	
+
+/* ---------- List of Tables / Figures (TOC & TOCI formatting) ---------- */
+
+ol[data-pdf-se-type="TOC"] 
+	{
+	list-style:	none;
+	margin:		0.5em 0 1em 0;
+	padding:	0 0 0 3em;
+	}
+
+/* Each entry on its own line */
+li[data-pdf-se-type="TOCI"] 
+	{
+	display: block;
+	margin-bottom: 	0.25em;
+	}
+
+/* Space between label (e.g., "1") and the caption text */
+li[data-pdf-se-type="TOCI"] > a > span[data-pdf-se-type="Lbl"]::after 
+	{
+	content: 		"";
+	margin-right: 	0.5em;      /* gap between label number and entry title */
+	}
+
+/* Space between link text and trailing page number */
+li[data-pdf-se-type="TOCI"] > a::after 
+	{
+	content: 		" ";
+	margin-right: 	0.5em;      /* gap before page number */
+	}
+
+/* Links inherit normal text color and style */
+ol[data-pdf-se-type="TOC"] a[data-pdf-se-type="Link"] 
+	{
+	text-decoration: none;
+	color: 			 inherit;
+	}
+ol[data-pdf-se-type="TOC"] a[data-pdf-se-type="Link"]:hover
+	{
+	text-decoration: underline;
+	}
+
+
+/* Footnotes */
+
+/* inline footnotes */
+
+div[data-pdf-se-type-original="footnote"]
+    { 
+    margin-bottom: 0.25em; 
+    margin-top:    0.25em;
+    }
+
+div[data-pdf-se-type-original="footnote"] > span[data-pdf-se-type-original="footnotelabel"]
+	{ 
+	font-size: smaller;        
+	color: var(--footnote-color);
+	margin-right: 0.25em;
+	}
+	
+span[data-pdf-se-type-original="footnote"]
+    { 
+	font-size: smaller;        
+	color: var(--footnote-color);
+	}
+
+ div[data-pdf-se-type-original="footnote"] [data-pdf-se-type="Part"] 
+	{
+	display: contents;
+	}
+
+div[data-pdf-se-type-original="footnote"] [data-pdf-se-type="Part"] > p[data-pdf-se-type="P"] 
+	{
+    display: 	 	inline;
+    font-size: 	 	smaller;
+    font-weight: 	normal; 
+    color: 			var(--footnote-color);
+    --hang:         0em; /* in case footnote is inside a description list */
+	}
+	
+
+/* Listing code lines (no wrapping) */
+
+code[data-pdf-se-type-original="codeline"]
+	{
+	font-family: 	var(--ui-mono);
+	font-size: 		10pt;
+	color: 			var(--code-color);
+	white-space:    pre; 
+	overflow-wrap:  normal;
+	hyphens:        manual; 
+	}
+
+code[data-pdf-se-type="Code"]	
+	{
+	font-family: 	var(--ui-mono);
+	font-size: 		12pt;
+	color: 			var(--code-color);
+	overflow-wrap:  normal;
+	hyphens:        manual; 
+	}
+
+
+/* Description lists */
+
+dl.description 
+	{
+	--hang: 3em;      /* hanging width for dd paragraphs */
+	--gap: 0.5em;     /* space between label and body */
+	margin: 0;
+	padding: 0 0 0 1em;
+	}
+
+/* Each LI wrapper: contain float + add spacing between items */
+dl.description > div 
+	{
+	display: flow-root;
+	margin-bottom: 1em; /* 1em gap between list items */
+	}
+dl.description > div:last-child 
+	{
+	margin-bottom: 0;   /* no extra space after final item */
+	}
+
+/* Label floats left; reserve hanging width + gap */
+dl.description dt 
+	{
+	float: left;
+	font-weight: 700;
+	margin: 0 calc(var(--hang) + var(--gap)) 0 0;
+  /* optional: prevent wrapping of label text */
+  /* white-space: nowrap; */
+	}
+
+/* Definition follows the float */
+dl.description dd 
+	{ margin: 0; }
+
+/* Ignore PDF wrapper divs */
+dl.description > dd > div 
+	{ display: contents; }
+
+/* 3em hanging indent for body paragraphs */
+dl.description dd p 
+	{
+	margin: 0;
+	padding-left: var(--hang);
+	text-indent: calc(var(--hang) * -1);
+	}
+
+/* Additional paragraphs: same hanging + 1em vertical gap */
+dl.description dd > div + div > p
+	{ 
+	margin-top: 1em; 
+	text-indent: 0;
+	}
+
+
+/* Special layout for nomenclature list, two column */
+
+div[data-pdf-se-type-original="Nomenclature_list"] ul li, 
+div[data-pdf-se-type-original="Nomenclature_list"] ul p  
+	{
+	margin-bottom: 0em;
+	}
+div[data-pdf-se-type-original="Nomenclature_list"] ul li p {
+    margin-bottom: 0.2em !important;
+}
+div[data-pdf-se-type-original="Nomenclature_list"] ul  
+	{
+	column-count: 2; /* Specifies exactly 2 columns */
+	column-gap: 2em; /* Adds space between columns  */
+	columns: 2 16em  /* Drop to one column on small screens */
+	}
+div[data-pdf-se-type-original="Nomenclature_list"] ul li 
+    {
+    break-inside: avoid;
+    }
+
+/* Nomenclature entry heading (e.g., "Greek letters") */
+ul.list span[data-pdf-se-type-original="Nomenclature_entry_heading"]
+	{
+	margin-top:    0.5em;
+	margin-bottom: 0.5em; /* some additional space */
+	display: inline-block;
+	}
+
+
+/* Other enumerated and itemized lists (References are "list") */
+
+/* Label inline with first line, paragraphs preserved */
+:where(ol[data-pdf-se-type-original="enumerate"],
+	ul[data-pdf-se-type-original="list"],
+    ul[data-pdf-se-type-original="itemize"]) 
+      li[data-pdf-se-type="LI"] 
+	{
+	display: 		flex;      	/* put label and body on the same row 	*/
+	align-items: 	flex-start;	/* align label with top of body 		*/
+	column-gap: 	0.25em;     /* space between label and text 		*/
+	margin-bottom: 	0.5em;		/* vertical separation between items 	*/
+	}
+
+/* Label stays in the left column */
+:where(ol[data-pdf-se-type-original="enumerate"],
+	ul[data-pdf-se-type-original="list"],
+    ul[data-pdf-se-type-original="itemize"])
+      li[data-pdf-se-type="LI"] > span[data-pdf-se-type="Lbl"] 
+	{
+	flex: 0 0 auto;  /* no grow/shrink */
+	}
+
+/* Body flows in the right column; override inline-block from generator */
+:where(ol[data-pdf-se-type-original="enumerate"],
+	ul[data-pdf-se-type-original="list"],
+    ul[data-pdf-se-type-original="itemize"])
+      li[data-pdf-se-type="LI"] > [data-pdf-se-type="LBody"]
+	{
+	flex: 		1 1 auto;
+	display: 	block !important;   /* ensures normal block flow   */
+	min-width: 	0;                  /* allow wrapping in flex item */
+	}
+
+/* Inner wrappers transparent to layout */
+:where(ol[data-pdf-se-type-original="enumerate"],
+	ul[data-pdf-se-type-original="list"],
+    ul[data-pdf-se-type-original="itemize"])
+      li[data-pdf-se-type="LI"] > [data-pdf-se-type="LBody"] > [data-pdf-se-type="Part"] 
+	{
+	display: contents;
+	}
+
+/* Keep paragraphs as blocks so breaks are preserved */
+:where(ol[data-pdf-se-type-original="enumerate"],
+	ul[data-pdf-se-type-original="list"],
+    ul[data-pdf-se-type-original="itemize"])
+      li[data-pdf-se-type="LI"] p[data-pdf-se-type="P"] 
+	{
+	display: 	block;
+	margin: 	0 0 0.5em 0;   /* paragraph spacing inside the body */
+	}
+
+/* remove any previously added pseudo-space */
+:where(ol[data-pdf-se-type-original="enumerate"],
+	ul[data-pdf-se-type-original="list"],
+    ul[data-pdf-se-type-original="itemize"])
+      li[data-pdf-se-type="LI"] > span[data-pdf-se-type="Lbl"]::after	
+	{
+	content: none;
+	}
+	
+/* Lists with ragged right (target is Reference list, but this affects all ul.list */
+ul[data-pdf-se-type-original="list"] li[data-pdf-se-type="LI"]  div[data-pdf-se-type="LBody"] p[data-pdf-se-type-original="text"]
+	{
+	text-align: left !important ;
+	margin-bottom: 0.25em;
+	}
+
+/* space above figures and tables (asides) */
+
+aside { margin-top: 3em; }
+
+/* Double figure width, but don't exceed 90% of page width */
+    
+aside[data-pdf-se-type="Aside"] p.center img 
+    {
+    display: block !important;
+    margin:  1em auto !important;
+    width:   min(2 * var(--native-w, 45%), 90%) !important;
+    height:  auto !important;
+    }
+
+/* aside[data-pdf-se-type="Aside"] div[data-pdf-se-type="Caption"] p.justify 
+    {
+    max-width: 90%;
+    margin: 0.5em auto 0;
+    text-align: center !important;
+    } */
+
+aside[data-pdf-se-type="Aside"] div[data-pdf-se-type="Caption"] 
+    { 
+    max-width:90%; 
+    margin:0.5em auto 0; 
+    }
+
+
+/* Figure text (target is any subcaption text in the figure) */
+ aside[data-pdf-se-type="Aside"] div[data-pdf-se-type-original="text-unit"] > p.justify
+ 	{
+	text-align: center!important;
+	}
+
+
+/* --- Dark mode adjustments --- */
+
+@media (prefers-color-scheme: dark) {
+	:root {
+	    --table-rule:         #7e7e7e; 
+	    --table-rule-strong:  #b3b3b3; 
+        --code-color:         #7cb0ff; /* light sky blue — high contrast on #121212 */
+        --footnote-color:     #9ec3ff;
+        --fg-color:           #e8eaed;
+		--bg-color:           #121212;
+		--hr-color:           #4a4a4a;
+		--link-color:         #82b1ff;  /* light blue, accessible on #121212 */
+		--link-visited-color: #b388ff;  /* distinct violet for visited links */
+		--link-hover-color:   #bbdefb;  /* even lighter on hover/focus */
+		--xref-color:         #8ab4f8;  /* medium-light blue with strong contrast */
+	}
+	aside img { background:#fff; }
+}
+
+
+/* --- Print: layout, breaks, widows/orphans --- */
+
+@media print {
+   :root { 
+       --fg-color:#111; 
+       --bg-color:#fff; 
+       --link-color:#0033a0; 
+       --xref-color:#0033a0;
+       --footnote-color:#1f4e79; 
+       --code-color:#3333b3;
+       --table-rule:#8c8c8c;
+       --table-rule-strong:#808080;
+    }
+	@page {
+		size: 	Letter;    /* or A4 */
+		margin: 0.5in;     /* matches ~36pt intent */
+	}
+	body {
+		margin: 0;         /* @page controls it on print */
+		max-width: none;
+	}
+  
+	/* Avoid splitting key elements across pages */
+	h1, h2, h3, h4,
+	    table[data-pdf-se-type="Table"],
+	    figcaption,
+	    div[data-pdf-se-type="Caption"],
+	    h1[data-pdf-se-type="H1"],
+	    aside  
+		{
+		break-inside: avoid-page;
+		}
+
+	/* Widow & orphan control */
+	p, li, dd, blockquote 
+	{
+		orphans: 	2;
+		widows: 	2;
+	}
+}

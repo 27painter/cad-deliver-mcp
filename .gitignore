@@ -65,3 +65,22 @@ two_page.pdf
 # Human-eval case files: rebuilt by scripts/build_human_eval.py
 benchmarks/human_eval/cad/
 benchmarks/human_eval/png/
+
+# Paper: the sources are committed (main.tex, supplementary.tex, references.bib,
+# asmejour.cls/.bst/.css) so anyone can rebuild it. The build products are not:
+# a PDF committed to git goes stale silently and nobody notices which revision it
+# describes. The release PDF is attached to the GitHub release instead.
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.bbl
+paper/*.blg
+paper/*.toc
+paper/*.synctex.gz
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.pdf
+
+# Internal writing outline: working notes with the paper's own audit trail, not
+# documentation. Kept out of the repository on purpose.
+paper_outline_zh.md

@@ -1,0 +1,284 @@
+% !TEX encoding = UTF-8 Unicode
+\DocumentMetadata{%
+  lang=en-US,
+  pdfstandard=A-3u,
+  pdfversion=1.7,
+}
+
+\documentclass[nocopyright,nolists,upint,varvw,hyphenate]{asmejour}
+
+\usepackage{tabularx}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\allowdisplaybreaks
+\emergencystretch=3em
+
+\hypersetup{%
+  pdfauthor={Aochen Wang},
+  pdftitle={Supplementary Material for: Abstention Is Not a Pass: Pre-Delivery Verification for LLM-Generated CAD Drawings},
+  pdfsubject={Supplementary tables and commercial CAD automation details},
+}
+
+\JourName{Computing and Information Science in Engineering}
+
+\renewcommand{\thesection}{S\arabic{section}}
+\renewcommand{\thesubsection}{S\arabic{section}.\arabic{subsection}}
+\renewcommand{\thetable}{S\arabic{table}}
+
+\begin{document}
+
+\SetAuthorBlock{Aochen Wang\CorrespondingAuthor}{%
+  Independent Researcher\\
+  email: wangaochen2008@hotmail.com
+}
+
+\title{Supplementary Material for: Abstention Is Not a Pass: Pre-Delivery Verification for LLM-Generated CAD Drawings}
+
+\keywords{CAD drawing verification, drafting layer ontology, deterministic rules, query-level taxonomy, SolidWorks COM automation}
+
+\begin{abstract}
+This supplementary document provides complete reference tables and commercial CAD automation reproducibility details accompanying the main manuscript: (S1) capability boundaries of representative commercial and local CAD standards checkers, (S2) the full seven-role mechanical drafting layer ontology with GB/T--ISO--ASME clause cross-walks and the consolidated six-rule threshold specification, (S3) per-case closed-loop self-repair tool calls across query levels and drawing scales, and (S4) exhaustive SolidWorks 2025 export API/registry/preference verification together with {\upshape\texttt{.NET}} interop reflection and AutoCAD 2025 COM harness details.
+\end{abstract}
+
+\date{}
+
+\AbstractSep{8mm}
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Commercial and Local CAD Standards Checker Boundaries}\label{sec:supp_commercial}
+
+Table~\ref{tab:supp_commercial} details the checking capabilities and structural pre-delivery blind spots of the three commercial and domestic CAD standards-checking tool categories evaluated against autonomous LLM CAD agent delivery pipelines.
+
+\begin{table*}[t]
+\caption{Capability boundaries of representative commercial and local CAD standards checkers as pre-delivery gates for LLM CAD agents}\label{tab:supp_commercial}
+\centering
+\footnotesize
+\tagpdfsetup{table/header-rows={1}}%
+\begin{tabularx}{\textwidth}{L{4.0cm} L{4.6cm} Y}
+\toprule
+Tool Category & Core Checking Capabilities & Structural Blind Spots as an LLM Agent Delivery Gate \\
+\midrule
+AutoCAD CAD Standards (\texttt{.dws} / \texttt{\_-CHECKSTANDARDS}) &
+Compares naming and property consistency across four named object tables: layers, linetypes, text styles, and dimension styles. &
+Inspects only named object tables, not entity-to-layer assignment, mandatory title-block attributes, sheet size, bounding-box collapse, or contour closure (0/20 recall on the 20-defect benchmark). In AutoCAD 2025 COM testing, \texttt{SaveAs} rejected all attempted format constants (\texttt{0, 1, 2, 3, 4, 5, 6, 8}), and \texttt{\_-CHECKSTANDARDS} opened only an interactive modal dialog with no report file or COM verdict property (\texttt{emits\_machine\_verdict = no}). \\
+\addlinespace[4pt]
+SolidWorks Design Checker &
+Inspects native drawings for sheet format, layers, fonts, and drafting standards (including GB). &
+Tightly coupled to a live commercial CAD runtime and native \texttt{.slddrw} documents; cannot validate neutral cross-system \texttt{.dxf} exports and lacks 0.01~mm neighborhood-snapping topological contour-closure checks on exported geometry. \\
+\addlinespace[4pt]
+Local / Domestic CAD Standardization Plugins &
+Provide desktop-assisted checks of layers, linetypes, and related drafting conventions. &
+Predominantly depend on interactive GUI dialogs; lack offline headless automation, standardized three-state exit codes, and agent-consumable structured repair instructions. \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Seven-Role Layer Ontology and Six-Rule Specification}\label{sec:supp_rules}
+
+Table~\ref{tab:supp_layer_ontology} specifies all seven semantic layer roles (\texttt{LayerRole}), bilingual GB/T Pinyin and English exporter aliases, tie-breaking priorities, ISO/ASME standard counterparts, entity-consistency constraints, and machine error/warning codes. Table~\ref{tab:supp_rule_summary} consolidates all six calibrated deterministic rules, profile memberships, thresholds, abstention preconditions, and \texttt{CRITICAL\_RULES} status.
+
+\begin{table*}[t]
+\caption{Seven-role mechanical drafting layer semantic ontology, GB/T--ISO--ASME standard cross-walk, and consistency constraints}\label{tab:supp_layer_ontology}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\tagpdfsetup{table/header-rows={1}}%
+\begin{tabularx}{\textwidth}{c L{2.05cm} L{2.45cm} L{2.35cm} L{1.75cm} L{1.85cm} Y L{2.35cm}}
+\toprule
+Prio. & Semantic Role (\texttt{LayerRole}) & Chinese GB/T Aliases (Pinyin / Gloss) & English Export Aliases (SW/NX incl.\ Plural) & GB/T Reference & ISO / ASME Counterpart & Entity Consistency and Linetype Constraints & Linked Machine Codes \\
+\midrule
+1 & \texttt{FRAME\_TITLE} &
+\emph{tukuang} (frame), \emph{biaotilan} (title block), \emph{nei/waikuang} (inner/outer border), \emph{mingxilan/biao} (BOM), \emph{tufu} (sheet) &
+\texttt{FRAME(S)}, \texttt{BORDER(S)}, \texttt{TITLE(S)}, \texttt{TITLEBLOCK}, \texttt{TITLE\_BLOCK}, \texttt{FORMAT(S)}, \texttt{SHEET(S)}, \texttt{BOM} &
+GB/T~14689-2008 / GB/T~10609.1-2008 &
+ISO~5457 / ISO~7200; ASME~Y14.1 / Y14.1M &
+Hosts paperspace borders and attributed title-block inserts; highest tie-break priority prevents downstream title-block breakage. &
+\texttt{E\_TITLE\_BLOCK}, \texttt{E\_TITLE\_BLOCK\_BLANK} \\
+\addlinespace[2pt]
+2 & \texttt{DIMENSION} &
+\emph{biaozhu} (dim), \emph{chicun} (dimension), \emph{chicunxian} (dim line), \emph{chicunbiaozhu}, \emph{biaozhuceng} &
+\texttt{DIM(S)}, \texttt{DIMENSION(S)}, \texttt{ANNO-DIM}, \texttt{ANNO\_DIM} &
+GB/T~4458.4-2003 &
+ISO~129-1; ASME~Y14.5 &
+All \texttt{DIMENSION}/\texttt{LEADER}/\texttt{MLEADER} entities must reside here (forbidden on layer~\texttt{0} or contour layer). &
+\texttt{E\_DIM\_ON\_WRONG\_LAYER} \\
+\addlinespace[2pt]
+3 & \texttt{ANNOTATION\_TEXT} &
+\emph{wenzi} (text), \emph{zhushi} (note), \emph{jishuyaoqiu} (tech.\ req.), \emph{cucaodu} (roughness), \emph{xingweigongcha} (GD\&T), \emph{fuhao} (symbol), \emph{wenben} &
+\texttt{TEXT(S)}, \texttt{NOTE(S)}, \texttt{ANNO}, \texttt{ANNOTATION}, \texttt{SYMBOL(S)}, \texttt{TOL}, \texttt{TOLERANCE}, \texttt{SURFACE} &
+GB/T~14691-1993 &
+ISO~3098; ASME~Y14.2 &
+Carries notes and tolerance symbols; excluded from contour closure and layer-\texttt{0} contour denominator. &
+--- \\
+\addlinespace[2pt]
+4 & \texttt{CENTERLINE} &
+\emph{zhongxinxian} (centerline), \emph{zhouxian} (axis), \emph{duichenxian} (symmetry), \emph{dianhuaxian} (dash-dot) &
+\texttt{CENTER(S)}, \texttt{CENTERLINE(S)}, \texttt{CENTRE(S)}, \texttt{AXIS}, \texttt{AXES}, \texttt{CL}, \texttt{CEN} &
+GB/T~4457.4-2002 &
+ISO~128-20 (Type~04); ASME~Y14.2 &
+If layer linetype is explicitly assigned, must contain \texttt{CENTER}, \texttt{CENTRE}, \texttt{DASHDOT}, or \texttt{DASH\_DOT}. &
+\texttt{W\_CENTER\_LINETYPE} \\
+\addlinespace[2pt]
+5 & \texttt{HIDDEN\_DASHED} &
+\emph{xuxian} (dashed), \emph{bukejian lunkuoxian} (invisible contour), \emph{yincangxian} (hidden), \emph{bukejian lunkuo} &
+\texttt{HIDDEN(S)}, \texttt{DASHED}, \texttt{HID}, \texttt{INVISIBLE} &
+GB/T~4457.4-2002 &
+ISO~128-20 (Type~02); ASME~Y14.2 &
+If layer linetype is explicitly assigned, must contain \texttt{HIDDEN}, \texttt{DASHED}, or \texttt{DASH}. &
+\texttt{W\_CENTER\_LINETYPE} \\
+\addlinespace[2pt]
+6 & \texttt{CONTOUR\_THICK} &
+\emph{cushixian} (thick solid), \emph{lunkuoxian} (contour), \emph{kejian lunkuoxian} (visible contour), \emph{shitixian} (object), \emph{kejian lunkuo} &
+\texttt{OUTLINE(S)}, \texttt{VISIBLE}, \texttt{CONTOUR(S)}, \texttt{OBJECT(S)}, \texttt{SOLID(S)}, \texttt{THICK}, \texttt{PART} &
+GB/T~4457.2-2003 / GB/T~4457.4-2002 &
+ISO~128-20 (Type~01) / ISO~13567; ASME~Y14.2 &
+Primary visible contour layer; non-block modelspace contour ratio $\ge 50\%$ on layer~\texttt{0} triggers blocking error. &
+\texttt{E\_CONTOUR\_ON\_ZERO}, \texttt{W\_NO\_CONTOUR\_LAYER} \\
+\addlinespace[2pt]
+7 & \texttt{THIN\_AUX} &
+\emph{xishixian} (thin solid), \emph{poumianxian} (section/hatch), \emph{tianchong} (fill), \emph{fuzhuxian} (aux.), \emph{luowenxian} (thread), \emph{poumian} &
+\texttt{THIN}, \texttt{HATCH(ES)}, \texttt{SECTION(S)}, \texttt{AUX}, \texttt{AUXILIARY}, \texttt{CONSTRUCTION}, \texttt{THREAD(S)} &
+GB/T~4457.4-2002 &
+ISO~128-20; ASME~Y14.2 &
+Separated from contours via longest-alias-wins; excluded from contour closure and layer-\texttt{0} contour denominator. &
+--- \\
+\addlinespace[2pt]
+--- & \texttt{UNCLASSIFIED} / Structural &
+Other occupied non-standard layers; structural: \texttt{0}, \texttt{DEFPOINTS}, \texttt{DEFPOINT} &
+Non-matching occupied layers; structural: \texttt{0}, \texttt{DEFPOINTS}, \texttt{DEFPOINT} &
+GB/T~4457.2-2003 &
+ISO~13567 &
+Checks occupied layers only (ignores empty template layers); structural layers are exempt from unclassified warnings. &
+\texttt{W\_LAYER\_UNCLASSIFIED}, \texttt{W\_LAYER\_AMBIGUOUS} \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\begin{table*}[t]
+\caption{Summary of deterministic verification rules, profile memberships, calibrated thresholds, abstention preconditions, and critical status}\label{tab:supp_rule_summary}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{minipage}{\textwidth}
+\tagpdfsetup{table/header-rows={1}}%
+\begin{tabularx}{\textwidth}{L{2.0cm} l L{1.5cm} L{1.6cm} L{2.45cm} Y L{2.3cm} c}
+\toprule
+Rule ID (\texttt{rule\_id}) & Layer & Standard & \texttt{PROFILES} & Emitted Codes \& Default Severity (\texttt{GB\_T\_TIER1}) & Core Calibrated Thresholds and Criteria & Abstention Precondition / Guard & \texttt{CRITICAL} \\
+\midrule
+\texttt{geo.bbox\_degenerate} & \texttt{geometry} & --- & \texttt{GB\_T\_TIER1} &
+\texttt{E\_BBOX\_DEGENERATE} (\texttt{ERROR}) &
+Modelspace \texttt{width > 1e-3~mm} \textbf{and} \texttt{height > 1e-3~mm}. &
+Silent skip if \texttt{extents is None}. &
+No \\
+\addlinespace[2pt]
+\texttt{gb.sheet\_size} & \texttt{standard} & GB/T~14689 / ISO~216 & \texttt{GB\_T\_TIER1}, \texttt{ISO\_216} &
+\texttt{E\_SHEET\_SIZE}, \texttt{E\_SHEET\_SIZE\_UNKNOWN} (\texttt{ERROR}); \texttt{W\_SHEET\_NOT\_ISO\_A} (\texttt{WARNING}) &
+Matches \texttt{A4}--\texttt{A0} portrait/landscape ($\pm 2.0$~mm); prioritizes populated non-\texttt{Model} layouts, ignoring \texttt{Model} plotter defaults. &
+Non-\texttt{Model} paperspace contains zero entities and zero block references. &
+Yes \\
+\addlinespace[2pt]
+\texttt{gb.layer\_taxonomy} & \texttt{standard} & GB/T~4457.2-2003 & \texttt{GB\_T\_TIER1} &
+\texttt{E\_DIM\_ON\_WRONG\_LAYER}, \texttt{E\_CONTOUR\_ON\_ZERO} (\texttt{ERROR}); \texttt{W\_LAYER\_UNCLASSIFIED}, \texttt{W\_LAYER\_AMBIGUOUS}, \texttt{W\_CENTER\_LINETYPE}, \texttt{W\_NO\_CONTOUR\_LAYER} (\texttt{WARNING}) &
+Longest-alias + cost-priority disambiguation; dims strictly on \texttt{DIMENSION}; \texttt{is\_outline\_layer()} denominator requires layer-\texttt{0} contour ratio $< 50\%$. &
+All occupied entities lie on a single layer (\texttt{"0"} or \texttt{"Defpoints"}). &
+Yes \\
+\addlinespace[2pt]
+\texttt{gb.dim\_text} & \texttt{standard} & GB/T~4458.4-2003 & \texttt{GB\_T\_TIER1} &
+\texttt{E\_DIM\_TEXT\_MISMATCH} (\texttt{ERROR}) &
+Overridden linear dims (\texttt{dimlfac == 1.0}, excl.\ \texttt{""}/\texttt{"<>"} and \texttt{dimtype 2,5,6}); tol.\ $\max(0.01\text{~mm}, 0.2\% \times |\text{measured}|)$. &
+$>1$ mismatch with $\text{spread} < 1\%$ and $|\bar{r}-1|>1\%$, or 1 mismatch within $\pm 1\%$ of standard scale $\{0.1..10\}$ (\texttt{applicable=False})$^{a}$. &
+No$^{a}$ \\
+\addlinespace[2pt]
+\texttt{gb.title\_block} & \texttt{standard} & GB/T~10609.1-2008 & \texttt{GB\_T\_TIER1} &
+\texttt{E\_TITLE\_BLOCK}, \texttt{E\_TITLE\_BLOCK\_BLANK} (\texttt{ERROR}); \texttt{W\_TITLE\_BLOCK\_NO\_ATTR} (\texttt{WARNING}) &
+Requires genuine title-block \texttt{INSERT} and non-empty \texttt{ATTRIB} fields for title, drawing number, and scale (bilingual aliases). &
+Non-\texttt{Model} paperspace contains zero entities and zero block references. &
+Yes \\
+\addlinespace[2pt]
+\texttt{gb.closed\_profile} & \texttt{standard} & GB/T~4457.2-2003 & \texttt{PROFILE\_CLOSURE} (isolated) &
+\texttt{E\_PROFILE\_OPEN} (\texttt{ERROR}) &
+\texttt{closed} flag or endpoint gap $\le 0.01$~mm; 9-cell \texttt{\_VertexIndex} Chebyshev snap ($\le 0.01$~mm) checking \texttt{degree == 1}; excludes \texttt{CIRCLE} and 6 non-outline roles. &
+Zero outline segments enter closure analysis and \texttt{closed\_profiles == 0}. &
+Yes \\
+\bottomrule
+\end{tabularx}
+\par\smallskip\footnotesize
+Note: $^{a}$\texttt{gb.dim\_text} abstention is a \emph{semantic exemption} (a consistent scale multiplier was positively identified), not an information gap, and therefore does not belong in \texttt{CRITICAL\_RULES} or force an overall \texttt{UNKNOWN} verdict.
+\end{minipage}
+\end{table*}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Per-Case Closed-Loop Repair Tool-Call Breakdown}\label{sec:supp_repair}
+
+Table~\ref{tab:supp_scale_level_calls} reports per-case tool calls across query complexity levels (\texttt{L0}--\texttt{L2}) and drawing entity scales ($8$ vs.\ $516$ entities) from the 24 closed-loop self-repair runs archived in \texttt{benchmarks/agent/repair\_all.csv} and analyzed in \texttt{benchmarks/agent/analyse\_levels.py}.
+
+\begin{table*}[t]
+\caption{Per-case tool-call comparison across query level and drawing scale (\texttt{repair\_all.csv} / \texttt{analyse\_levels.py})}\label{tab:supp_scale_level_calls}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{minipage}{\textwidth}
+\tagpdfsetup{table/header-rows={1}}%
+\begin{tabularx}{\textwidth}{L{1.85cm} L{2.05cm} L{3.45cm} r r r Y}
+\toprule
+Query Level & Scale Regime & Sample ID & Arm~A Calls & Arm~B Calls & B vs.\ A ($\Delta\%$) & Effect of Scaling on \texttt{fix\_plan} Value \\
+\midrule
+\texttt{L0} Attribute & Simple (8 ent.) & \texttt{mut\_13\_titleblock\_gone} & 10 & 7 & $-30\%$ & --- \\
+\texttt{L0} Attribute & Simple (8 ent.) & \texttt{mut\_17\_dim\_wrong\_layer} & 9 & 5 & $-44\%$ & --- \\
+\texttt{L0} Attribute & Simple (8 ent.) & \texttt{mut\_09\_sheet\_size} / \texttt{mut\_19\_contour\_on\_zero}$^{a}$ & --- / 9 & 7 / --- & --- & Single-arm log missing; excluded from paired delta \\
+\texttt{L0} Attribute & Complex (516 ent.) & \texttt{complex\_02\_dim\_layer} & 5 & 5 & $0\%$ & Neutralizes advantage ($-30\%/-44\% \to 0\%/0\%$) \\
+\texttt{L0} Attribute & Complex (516 ent.) & \texttt{complex\_04\_title\_blank} & 6 & 6 & $0\%$ & Neutralizes advantage \\
+\midrule
+\texttt{L1} Numeric & Simple (8 ent.) & \texttt{mut\_01\_bbox\_point} & 15 & 16 & $+7\%$ & --- \\
+\texttt{L1} Numeric & Complex (516 ent.) & \texttt{complex\_03\_dim\_text} & 10 & 6 & $-40\%$ & Subtle $+0.3\%$ override elevates discovery cost \\
+\midrule
+\texttt{L2} Topology & Simple (8 ent.) & \texttt{mut\_05\_profile\_open} (1 polyline) & 5 & 6 & $+20\%$ & --- \\
+\texttt{L2} Topology & Complex (516 ent.) & \texttt{complex\_01\_profile\_open} (200 seg., 0.02~mm gap) & 14 & 9 & $-36\%$ & Amplifies and reverses ($+56$-pp net shift) \\
+\midrule
+\texttt{L0+L2} Multi & Complex (516 ent.) & \texttt{complex\_05\_two\_defects} & 11 & 9 & $-18\%$ & Intermediate savings across mixed levels \\
+\texttt{L0+L1+L2} Multi & Complex (516 ent.) & \texttt{complex\_06\_all\_four} & 12 & 10 & $-17\%$ & Intermediate savings across mixed levels \\
+\midrule
+\emph{Level means}$^{b}$ & \emph{Paired cases} & \emph{{\upshape\texttt{L0}} ($n=4$) / {\upshape\texttt{L1}} ($n=2$) / {\upshape\texttt{L2}} ($n=2$)} & \emph{7.5 / 12.5 / 9.5} & \emph{5.8 / 11.0 / 7.5} & \emph{$-23\%$ / $-12\%$ / $-21\%$} & \emph{Pooling across scales masks the opposing interaction} \\
+\bottomrule
+\end{tabularx}
+\par\smallskip\footnotesize
+Notes: $^{a}$\texttt{mut\_09\_sheet\_size} (Arm~A) and \texttt{mut\_19\_contour\_on\_zero} (Arm~B) omitted \texttt{tool\_calls} in \texttt{repair\_all.csv} and are excluded from paired deltas and single-level means. $^{b}$Single-level means follow \texttt{analyse\_levels.py} over paired cases logged under both arms.
+\end{minipage}
+\end{table*}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Commercial CAD API Audit and Interop Reflection Details}\label{sec:supp_com}
+
+Table~\ref{tab:supp_sw_audit} summarizes the exhaustive SolidWorks 2025 export API, registry, and user-preference verification across all five enabled dimensions in \texttt{GB\_T\_TIER1}.
+
+\begin{table*}[t]
+\caption{SolidWorks 2025 default DXF structural gaps and exhaustive COM, registry, and preference API verification across five enabled dimensions}\label{tab:supp_sw_audit}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\tagpdfsetup{table/header-rows={1}}%
+\begin{tabularx}{\textwidth}{L{2.1cm} L{1.9cm} L{3.0cm} Y L{2.9cm}}
+\toprule
+Dimension (\texttt{GB\_T\_TIER1}) & AutoCAD 2025 & SolidWorks 2025 Export Observation & Exhaustive COM / Registry / Preference Interface Audit & Gatekeeper Verdict \& Mechanism \\
+\midrule
+\texttt{geo.bbox\_degenerate} & Full check (\texttt{PASS}) & Valid modelspace geometry & Geometry exported normally. & Normal check (\texttt{ok}). \\
+\addlinespace[2pt]
+\texttt{gb.dim\_text} & Full check (\texttt{PASS}) & 13 pass/scale-abstain; 2 true \texttt{FAIL} & \texttt{swconst.dll} reflection confirmed 6-arg \texttt{InsertModelAnnotations3}, yet returned silently with 0 dims on \texttt{part-006}. & Normal check (13~\texttt{ok} / 2~\texttt{FAIL}). \\
+\addlinespace[2pt]
+\texttt{gb.title\_block} & Full check (\texttt{PASS}) & Paperspace empty; no borders/title block & Enumerating all 129 \texttt{Export Settings} registry values and all 818 \texttt{swUserPreferenceToggle\_e} toggles yielded no switch; \texttt{ISheet.SetTemplateName} and \texttt{InsertTitleBlockTable} returned \texttt{None}; \texttt{IPartDoc.ExportToDWG2} applies only to sheet-metal flat patterns. & Abstain $\to$ \texttt{CRITICAL\_RULES} forces \texttt{UNKNOWN}. \\
+\addlinespace[2pt]
+\texttt{gb.layer\_taxonomy} & Full check (\texttt{PASS}) & 100\% entities on layer~\texttt{0} & \texttt{CreateLayer2} (7-arg) returned \texttt{True}; setting \texttt{IAnnotation.Layer} and \texttt{LayerOverride=1} raised no error yet still wrote layer~\texttt{0}; map-file \texttt{[Entities]} and registry \texttt{Export only model geometry=0} ignored under \texttt{SaveAs}. & Abstain $\to$ \texttt{CRITICAL\_RULES} forces \texttt{UNKNOWN}. \\
+\addlinespace[2pt]
+\texttt{gb.sheet\_size} & Full check (\texttt{PASS}) & Paperspace empty; \texttt{Model} reports \texttt{Letter} ($215.9{\times}279.4$~mm) & Even creating A3 sheets via \texttt{NewDocument(template, 8, 0, 0)}, DXF omits paperspace sheet format while retaining \texttt{Model} \texttt{Letter} plot setup. & Abstain $\to$ \texttt{CRITICAL\_RULES} forces \texttt{UNKNOWN}. \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\subsection{Reproducible \texttt{.NET} Interop Reflection and COM Harness Configuration}\label{sec:supp_reflection}
+
+To guarantee script reproducibility where COM type libraries failed (\texttt{win32com.\allowbreak client.\allowbreak gencache.\allowbreak EnsureDispatch} and \texttt{makepy} both errored with \texttt{"Could not locate a type library"}), we adopted direct reflection over installed \texttt{.NET} interop assemblies rather than relying on outdated documentation. Reflecting \texttt{SolidWorks.\allowbreak Interop.\allowbreak swconst.dll} extracted all 818 \texttt{swUserPreference\allowbreak Toggle\_e} constants and authoritative COM signatures: establishing \texttt{InsertModel\allowbreak Annotations3} as 6-argument (7 arguments fail with invalid parameter count), \texttt{CreateLayer2} as 7-argument, \texttt{swUnitsLinear = 47} (not~49, which sets decimal places), \texttt{byref} outputs on \texttt{ISheet.\allowbreak GetSize}, and property-rather-than-method bindings on \texttt{GetType} and \texttt{GetProperties2}. Similarly, AutoCAD~2025 automation requires explicit \texttt{VARIANT(\allowbreak VT\_ARRAY | VT\_R8, \allowbreak tuple(...))} wrappers on double arrays (raw Python lists fail with \texttt{DISP\_E\_\allowbreak BADPARAMCOUNT}), \texttt{IAcadLayout.\allowbreak Canonical\allowbreak MediaName = "psk:ISOA3"} for paper format, and exponential backoff on \texttt{HRESULT -2147418111}. Together with zero post-processing and frozen configurations, these metadata-verified harnesses ensure full auditability across all 30 commercial exports.
+
+\end{document}
