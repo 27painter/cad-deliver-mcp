@@ -84,3 +84,8 @@ paper/*.pdf
 # Internal writing outline: working notes with the paper's own audit trail, not
 # documentation. Kept out of the repository on purpose.
 paper_outline_zh.md
+
+# Submission bundles are build products: the zips are regenerated from the
+# committed sources by recompiling, and a 1.2 MB archive in git is a file nobody
+# can diff. The upload instructions live in the repository only as prose.
+paper/submissions/

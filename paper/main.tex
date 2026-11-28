@@ -34,7 +34,8 @@
 \begin{document}
 
 \SetAuthorBlock{Aochen Wang\CorrespondingAuthor}{%
-  Independent Researcher\\
+  School of Mechanical Engineering,\\
+  Liuzhou Institute of Technology\\
   email: wangaochen2008@hotmail.com
 }
 
@@ -48,7 +49,7 @@ Existing large language model (LLM)-driven CAD agent workflows treat exception-f
 
 \date{}
 
-\AbstractSep{9mm}
+\AbstractSep{5.5mm}
 \maketitle
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -855,6 +856,10 @@ External generalizability is bounded by sample size ($n=50$ yields 95\% binomial
 Four directions anchor future work: (1) adding overridden dimension-text mutations alongside \texttt{L3} workshop-convention twins and \texttt{L4} 2D-DXF/3D-STEP consistency benchmarks under restricted baseline file access (Section~\ref{sec:query_taxonomy}); (2) adding native ASME~Y14.5/Y14.1 and ISO~128/13567 profiles plus lightweight B-rep backends for STEP; (3) embedding standardized layers, sheet formats, and attributed blocks inside SolidWorks \texttt{.drwdot} templates; and (4) executing the \texttt{benchmarks/human\_eval/} study across at least 3 practicing mechanical engineers split across \texttt{cad} and \texttt{png} conditions (measuring recall, FP, Fleiss' $\kappa$, and review latency).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Data and Code Availability}
+
+The \texttt{cad-deliver-mcp} source code, all 74 automated tests, the 50-drawing hybrid benchmark, the 15-part AutoCAD~2025 and SolidWorks~2025 exports, the 24 closed-loop repair runs, and archived reproducibility logs are permanently available on Zenodo at \hrefurl{https://doi.org/10.5281/zenodo.24625649}{doi:10.5281/zenodo.24625649}.
+
 \vspace{-4pt}
 \bibliographystyle{asmejour}
 \setlength\bibsep{-1.8pt}
